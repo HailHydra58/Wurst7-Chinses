@@ -19,28 +19,28 @@ version = project.mod_version
 group = project.maven_group
 
 repositories {
-	// Add repositories to retrieve artifacts from in here.
-	// You should only use this when depending on other mods because
-	// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
-	// for more information about repositories.
+	// 在此处添加用于检索工件的存储库。
+	// 你只应在依赖其他模块时使用这个，
+	// 因为Loom会自动添加必要的maven存储库以自动下载Minecraft和库。
+	// 有关存储库的更多信息，请参见https://docs.gradle.org/current/userguide/declaring_repositories.html。
+	maven { url "https://maven.aliyun.com/repository/central" }
 }
 
 dependencies {
-	// To change the versions see the gradle.properties file
+	// 要更改版本，请查看gradle.properties文件
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-	// Fabric API. This is technically optional, but you probably want it anyway.
+	// Fabric API。这在技术上是可选的，但你可能还是想要它。
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-	
-	// net.wurstclient.ai.PathPos extends net.minecraft.util.math.BlockPos,
-	// which uses javax.annotation.concurrent.Immutable, which is part of
-	// the JSR305 library.
+
+	// net.wurstclient.ai.PathPos扩展了net.minecraft.util.math.BlockPos，
+	// 它使用javax.annotation.concurrent.Immutable，这是
+	// JSR305库的一部分。
 	//
-	// In other words, Wurst won't compile without this library,
-	// even though it's Minecraft that actually uses it.
+	// 换句话说，没有这个库，Wurst就无法编译，
+	// 尽管实际上是Minecraft在使用它。
 	modImplementation 'com.google.code.findbugs:jsr305:3.0.2'
 }
 
@@ -50,21 +50,21 @@ loom {
 
 processResources {
 	inputs.property "version", project.version
-	
+
 	filesMatching("fabric.mod.json") {
 		expand "version": project.version
 	}
 }
 
 tasks.withType(JavaCompile).configureEach {
-	// Minecraft 1.18 (1.18-pre2) upwards uses Java 17.
+	// Minecraft 1.18 (1.18-pre2)以上使用Java 17。
 	it.options.release = 17
 }
 
 java {
-	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-	// if it is present.
-	// If you remove this line, sources will not be generated.
+	// Loom会自动将sourcesJar附加到RemapSourcesJar任务和"build"任务
+	// 如果它存在。
+	// 如果你删除这一行，源代码将不会被生成。
 	withSourcesJar()
 }
 
@@ -74,20 +74,20 @@ jar {
 	}
 }
 
-// configure the maven publication
+// 配置maven发布
 publishing {
 	publications {
 		mavenJava(MavenPublication) {
 			from components.java
 		}
 	}
-	
-	// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+
+	// 有关如何设置发布的信息，请参见https://docs.gradle.org/current/userguide/publishing_maven.html。
 	repositories {
-		// Add repositories to publish to here.
-		// Notice: This block does NOT have the same function as the block in the top level.
-		// The repositories here will be used for publishing your artifact, not for
-		// retrieving dependencies.
+		// 在此处添加要发布的存储库。
+		// 注意：这个块与顶级块的功能不同。
+		// 这里的存储库将用于发布你的工件，而不是
+		// 检索依赖项。
 	}
 }
 
@@ -110,13 +110,13 @@ task github(dependsOn: moveDevLibs) {
 		def github = GitHub.connectUsingOAuth(ENV.GITHUB_TOKEN as String)
 		def repository = github.getRepository("Wurst-Imperium/Wurst-MCX2")
 		def ghVersion = version.substring(0, version.indexOf("-"))
-		
+
 		def ghRelease = repository.getReleaseByTagName(ghVersion as String)
 		if(ghRelease == null) {
 			def releaseBuilder = new GHReleaseBuilder(repository, ghVersion as String)
 			ghRelease = releaseBuilder.create()
 		}
-		
+
 		ghRelease.uploadAsset(remapJar.archiveFile.get().getAsFile(), "application/java-archive")
 		ghRelease.uploadAsset(remapSourcesJar.archiveFile.get().getAsFile(), "application/java-archive")
 		ghRelease.uploadAsset(new File("${project.buildDir}/libs/${archivesBaseName}-${version}-dev.jar"), "application/java-archive")
