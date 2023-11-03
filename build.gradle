@@ -91,6 +91,7 @@ publishing {
 	}
 }
 
+// ---------------------生成最终文件请运行此任务!!!---------------------
 task moveDevLibs(dependsOn: [remapJar, remapSourcesJar]) {
 	doLast {
 		ant.move(file:"${project.buildDir}/devlibs/${archivesBaseName}-${version}-dev.jar", tofile:"${project.buildDir}/libs/${archivesBaseName}-${version}-dev.jar")
