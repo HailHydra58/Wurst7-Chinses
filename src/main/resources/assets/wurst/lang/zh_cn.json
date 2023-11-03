@@ -1,9 +1,11 @@
 {
+  "description.wurst.hack.aimassist": "帮助您瞄准附近的实体。",
   "description.wurst.hack.airplace": "允许您在空中放置方块。",
   "description.wurst.hack.anchoraura": "自动放置（可选），充能，引爆重生锚并击杀你附近的实体。",
   "description.wurst.hack.antiafk": "随机走动，用于避免服务器挂机检测。\n需要至少有 3x3 的区域可以走动。",
   "description.wurst.hack.antiblind": "防止失明和黑暗效果。\n与 OptiFine 不兼容。",
   "description.wurst.hack.anticactus": "保护你免受仙人掌伤害。",
+  "description.wurst.hack.antientitypush": "防止玩家和暴民推你。",
   "description.wurst.hack.antihunger": "在你走路时减缓你的饥饿状态。",
   "description.wurst.hack.antiknockback": "保护你不被其他生物或玩家推动和用剑击退。",
   "description.wurst.hack.antispam": "将重复的刷屏改为计数器显示。",
@@ -14,8 +16,10 @@
   "description.wurst.setting.arrowdmg.trident_yeet_mode": "打开之后，三叉戟将飞得更远。似乎不影响伤害以及“激流”魔咒。\n\n§c§l警告：§r打开这个选项之后你很容易弄丢你的三叉戟！",
   "description.wurst.hack.autoarmor": "自动管理你的盔甲。",
   "description.wurst.hack.autobuild": "自动建筑东西。\n放一个方块就开始自动建造。",
+  "description.wurst.hack.autocomplete": "自动完成您的聊天消息使用大型语言模型。需要具有OpenAI帐户和API访问权限，或者本地安装了具有oobabooga web UI的语言模型。",
   "description.wurst.hack.autodrop": "自动丢弃你不想要的物品（可以预设）。",
   "description.wurst.hack.autoleave": "血量过低时自动离开服务器。",
+  "description.wurst.hack.autolibrarian": "自动培训村民成为一个售卖特定附魔书籍的图书管理员。通过使用这个技巧，您可以在短时间内建立一个完整的交易大厅。",
   "description.wurst.hack.autoeat": "当必要的时候将会自动进食（可以预设）。",
   "description.wurst.setting.autoeat.target_hunger": "在不浪费任何饥饿值的前提下，尝试将饥饿条保持在此水准之上。",
   "description.wurst.setting.autoeat.min_hunger": "即便浪费一些补充的饥饿值，也总是将饥饿条保持在此水准之上。\n6.5 - 不会导致任何原版食物所补充饥饿值的浪费。\n10.0 - 完全忽视饥饿值的浪费，总是将饥饿条补满。",
@@ -184,5 +188,6 @@
   "button.wurst.nochatreports.signatures_status": "签名: ",
   "description.wurst.nochatreports.message_is_reportable": "此消息有一个有效的签名，因此容易受到欺诈性聊天报告的伤害。",
   "gui.wurst.generic.allcaps_blocked": "黑名单",
-  "gui.wurst.generic.allcaps_allowed": "已允许"
+  "gui.wurst.generic.allcaps_allowed": "已允许",
+  "key.wurst.zoom": "缩放"
 }
