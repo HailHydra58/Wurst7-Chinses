@@ -46,7 +46,7 @@ public final class AutoFarmHack extends Hack
 		new SliderSetting("Range", 5, 1, 6, 0.05, ValueDisplay.DECIMAL);
 
 	private final CheckboxSetting replant =
-		new CheckboxSetting("Replant", true);
+		new CheckboxSetting("重新种植", true);
 
 	private final HashMap<Block, Item> seeds = new HashMap<>();
 	{
