@@ -24,41 +24,38 @@ import net.wurstclient.settings.EnumSetting;
 @DontBlock
 public final class HackListOtf extends OtherFeature
 {
-	private final EnumSetting<Mode> mode = new EnumSetting<>("Mode",
-		"\u00a7lAuto\u00a7r mode renders the whole list if it fits onto the screen.\n"
-			+ "\u00a7lCount\u00a7r mode only renders the number of active hacks.\n"
-			+ "\u00a7lHidden\u00a7r mode renders nothing.",
+	private final EnumSetting<Mode> mode = new EnumSetting<>("模式",
+		"\u00a7l列表\u00a7r 将整个列表拟合到屏幕上。\n"
+			+ "\u00a7l计数\u00a7r 仅呈现激活外挂的数量。\n"
+			+ "\u00a7l隐藏\u00a7r 不显示。",
 		Mode.values(), Mode.AUTO);
-	
-	private final EnumSetting<Position> position = new EnumSetting<>("Position",
-		"Which side of the screen the HackList should be shown on."
-			+ "\nChange this to \u00a7lRight\u00a7r when using TabGUI.",
+
+	private final EnumSetting<Position> position = new EnumSetting<>("定位",
+		"屏幕的哪一侧应显示黑色列表。",
 		Position.values(), Position.LEFT);
-	
-	private final ColorSetting color = new ColorSetting("Color",
-		"Color of the HackList text.\n"
-			+ "Only visible when \u00a76RainbowUI\u00a7r is disabled.",
+
+	private final ColorSetting color = new ColorSetting("颜色",
+		"列表的字体的颜色。",
 		Color.WHITE);
-	
-	private final EnumSetting<SortBy> sortBy = new EnumSetting<>("Sort by",
-		"Determines how the HackList entries are sorted.\n"
-			+ "Only visible when \u00a76Mode\u00a7r is set to \u00a76Auto\u00a7r.",
+
+	private final EnumSetting<SortBy> sortBy = new EnumSetting<>("排序方式",
+		"对外挂列表进行排序。",
 		SortBy.values(), SortBy.NAME);
-	
+
 	private final CheckboxSetting revSort =
-		new CheckboxSetting("Reverse sorting", false);
-	
-	private final CheckboxSetting animations = new CheckboxSetting("Animations",
-		"When enabled, entries slide into and out of the HackList as hacks are enabled and disabled.",
+		new CheckboxSetting("反向排序", false);
+
+	private final CheckboxSetting animations = new CheckboxSetting("动画",
+		"启用后，当启用和禁用外挂时，条目滑入和退出列表。",
 		true);
-	
+
 	private SortBy prevSortBy;
 	private Boolean prevRevSort;
-	
+
 	public HackListOtf()
 	{
-		super("HackList", "Shows a list of active hacks on the screen.");
-		
+		super("外挂列表", "在屏幕上显示激活的外挂的列表。");
+
 		addSetting(mode);
 		addSetting(position);
 		addSetting(color);
@@ -66,30 +63,30 @@ public final class HackListOtf extends OtherFeature
 		addSetting(revSort);
 		addSetting(animations);
 	}
-	
+
 	public Mode getMode()
 	{
 		return mode.getSelected();
 	}
-	
+
 	public Position getPosition()
 	{
 		return position.getSelected();
 	}
-	
+
 	public boolean isAnimations()
 	{
 		return animations.isChecked();
 	}
-	
+
 	public Comparator<Hack> getComparator()
 	{
 		if(revSort.isChecked())
 			return sortBy.getSelected().comparator.reversed();
-		
+
 		return sortBy.getSelected().comparator;
 	}
-	
+
 	public boolean shouldSort()
 	{
 		try
@@ -98,85 +95,85 @@ public final class HackListOtf extends OtherFeature
 			// must sort the HackList every tick
 			if(sortBy.getSelected() == SortBy.WIDTH)
 				return true;
-			
+
 			if(sortBy.getSelected() != prevSortBy)
 				return true;
-			
+
 			if(!Boolean.valueOf(revSort.isChecked()).equals(prevRevSort))
 				return true;
-			
+
 			return false;
-			
+
 		}finally
 		{
 			prevSortBy = sortBy.getSelected();
 			prevRevSort = revSort.isChecked();
 		}
 	}
-	
+
 	public int getColor()
 	{
 		return color.getColorI() & 0x00FFFFFF;
 	}
-	
+
 	public static enum Mode
 	{
-		AUTO("Auto"),
-		
-		COUNT("Count"),
-		
-		HIDDEN("Hidden");
-		
+		AUTO("列表"),
+
+		COUNT("计数"),
+
+		HIDDEN("隐藏");
+
 		private final String name;
-		
+
 		private Mode(String name)
 		{
 			this.name = name;
 		}
-		
+
 		@Override
 		public String toString()
 		{
 			return name;
 		}
 	}
-	
+
 	public static enum Position
 	{
 		LEFT("Left"),
-		
+
 		RIGHT("Right");
-		
+
 		private final String name;
-		
+
 		private Position(String name)
 		{
 			this.name = name;
 		}
-		
+
 		@Override
 		public String toString()
 		{
 			return name;
 		}
 	}
-	
+
 	public static enum SortBy
 	{
 		NAME("Name", (a, b) -> a.getName().compareToIgnoreCase(b.getName())),
-		
+
 		WIDTH("Width", Comparator.comparingInt(
 			h -> WurstClient.MC.textRenderer.getWidth(h.getRenderName())));
-		
+
 		private final String name;
 		private final Comparator<Hack> comparator;
-		
+
 		private SortBy(String name, Comparator<Hack> comparator)
 		{
 			this.name = name;
 			this.comparator = comparator;
 		}
-		
+
 		@Override
 		public String toString()
 		{
