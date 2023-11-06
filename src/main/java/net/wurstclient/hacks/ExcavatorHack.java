@@ -61,7 +61,7 @@ public final class ExcavatorHack extends Hack
 	private PathProcessor processor;
 
 	private final SliderSetting range =
-		new SliderSetting("Range", 5, 2, 6, 0.05, ValueDisplay.DECIMAL);
+		new SliderSetting("范围", 5, 2, 6, 0.05, ValueDisplay.DECIMAL);
 
 	private final EnumSetting<Mode> mode =
 		new EnumSetting<>("Mode", Mode.values(), Mode.FAST);

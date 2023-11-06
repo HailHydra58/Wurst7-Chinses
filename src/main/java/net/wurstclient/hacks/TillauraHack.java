@@ -41,7 +41,7 @@ import net.wurstclient.util.RotationUtils;
 	"auto hoe"})
 public final class TillauraHack extends Hack implements UpdateListener
 {
-	private final SliderSetting range = new SliderSetting("Range",
+	private final SliderSetting range = new SliderSetting("范围",
 		"How far Tillaura will reach to till blocks.", 5, 1, 6, 0.05,
 		ValueDisplay.DECIMAL);
 

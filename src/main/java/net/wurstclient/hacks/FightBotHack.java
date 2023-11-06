@@ -42,7 +42,7 @@ import net.wurstclient.util.EntityUtils;
 public final class FightBotHack extends Hack
 	implements UpdateListener, RenderListener
 {
-	private final SliderSetting range = new SliderSetting("Range",
+	private final SliderSetting range = new SliderSetting("范围",
 		"Attack range (like Killaura)", 4.25, 1, 6, 0.05, ValueDisplay.DECIMAL);
 
 	private final AttackSpeedSliderSetting speed =

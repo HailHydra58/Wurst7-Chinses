@@ -52,7 +52,7 @@ import net.wurstclient.util.RotationUtils.Rotation;
 @SearchTags({"crystal aura"})
 public final class CrystalAuraHack extends Hack implements UpdateListener
 {
-	private final SliderSetting range = new SliderSetting("Range",
+	private final SliderSetting range = new SliderSetting("范围",
 		"Determines how far CrystalAura will reach to place and detonate crystals.",
 		6, 1, 6, 0.05, ValueDisplay.DECIMAL);
 

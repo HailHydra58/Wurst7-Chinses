@@ -55,7 +55,7 @@ public final class AutoBuildHack extends Hack
 			+ "If you mess up, simply press the 'Reset to Defaults' button or delete the folder.",
 		"autobuild", DefaultAutoBuildTemplates::createFiles);
 
-	private final SliderSetting range = new SliderSetting("Range",
+	private final SliderSetting range = new SliderSetting("范围",
 		"How far to reach when placing blocks.\n" + "Recommended values:\n"
 			+ "6.0 for vanilla\n" + "4.25 for NoCheat+",
 		6, 1, 10, 0.05, ValueDisplay.DECIMAL);

@@ -52,7 +52,7 @@ import net.wurstclient.util.RotationUtils.Rotation;
 @SearchTags({"anchor aura", "CrystalAura", "crystal aura"})
 public final class AnchorAuraHack extends Hack implements UpdateListener
 {
-	private final SliderSetting range = new SliderSetting("Range",
+	private final SliderSetting range = new SliderSetting("范围",
 		"Determines how far AnchorAura will reach to place, charge and detonate anchors.",
 		6, 1, 6, 0.05, ValueDisplay.DECIMAL);
 

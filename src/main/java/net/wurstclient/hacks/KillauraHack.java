@@ -48,7 +48,7 @@ import net.wurstclient.util.RotationUtils;
 public final class KillauraHack extends Hack
 	implements UpdateListener, PostMotionListener, RenderListener
 {
-	private final SliderSetting range = new SliderSetting("Range",
+	private final SliderSetting range = new SliderSetting("范围",
 		"Determines how far Killaura will reach to attack entities.\n"
 			+ "Anything that is further away than the specified value will not be attacked.",
 		5, 1, 10, 0.05, ValueDisplay.DECIMAL);
