@@ -16,19 +16,19 @@ public final class FilterAnimalsSetting extends EntityFilterCheckbox
 {
 	public FilterAnimalsSetting(String description, boolean checked)
 	{
-		super("Filter animals", description, checked);
+		super("选择动物", description, checked);
 	}
-	
+
 	@Override
 	public boolean test(Entity e)
 	{
 		return !(e instanceof AnimalEntity || e instanceof AmbientEntity
 			|| e instanceof WaterCreatureEntity);
 	}
-	
+
 	public static FilterAnimalsSetting genericCombat(boolean checked)
 	{
-		return new FilterAnimalsSetting("Won't attack pigs, cows, etc.",
+		return new FilterAnimalsSetting("不会攻击猪、牛等。",
 			checked);
 	}
 }

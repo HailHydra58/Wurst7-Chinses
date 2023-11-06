@@ -14,17 +14,17 @@ public final class FilterPlayersSetting extends EntityFilterCheckbox
 {
 	public FilterPlayersSetting(String description, boolean checked)
 	{
-		super("Filter players", description, checked);
+		super("选择玩家", description, checked);
 	}
-	
+
 	@Override
 	public boolean test(Entity e)
 	{
 		return !(e instanceof PlayerEntity);
 	}
-	
+
 	public static FilterPlayersSetting genericCombat(boolean checked)
 	{
-		return new FilterPlayersSetting("Won't attack other players.", checked);
+		return new FilterPlayersSetting("不会攻击其他玩家。", checked);
 	}
 }

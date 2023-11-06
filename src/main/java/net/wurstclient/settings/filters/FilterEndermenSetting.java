@@ -14,17 +14,17 @@ public final class FilterEndermenSetting extends EntityFilterCheckbox
 {
 	public FilterEndermenSetting(String description, boolean checked)
 	{
-		super("Filter endermen", description, checked);
+		super("选择末影人", description, checked);
 	}
-	
+
 	@Override
 	public boolean test(Entity e)
 	{
 		return !(e instanceof EndermanEntity);
 	}
-	
+
 	public static FilterEndermenSetting genericCombat(boolean checked)
 	{
-		return new FilterEndermenSetting("Won't attack endermen.", checked);
+		return new FilterEndermenSetting("不会攻击末影人。", checked);
 	}
 }
