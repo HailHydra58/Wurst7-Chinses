@@ -25,16 +25,14 @@ public final class SneakHack extends Hack
 	implements PreMotionListener, PostMotionListener
 {
 	private final EnumSetting<SneakMode> mode = new EnumSetting<>("模式",
-		"\u00a7lPacket\u00a7r mode makes it look like you're sneaking without slowing you down.\n"
-			+ "\u00a7lLegit\u00a7r mode actually makes you sneak.",
+		"\u00a7lPacket\u00a7r 使您看起来像在悄悄行动，而不会减慢您的速度。\n"
+			+ "\u00a7lLegit\u00a7r 实际上会让您悄悄行动。",
 		SneakMode.values(), SneakMode.LEGIT);
 
 	private final CheckboxSetting offWhileFlying =
-		new CheckboxSetting("Turn off while flying",
-			"Automatically disables Legit Sneak while you are flying or using"
-				+ " Freecam, so that it doesn't force you to fly down.\n\n"
-				+ "Keep in mind that this also means you won't be hidden from"
-				+ " other players while doing these things.",
+		new CheckboxSetting("在飞行时关闭",
+			"在您飞行或使用自由视角时，会自动禁用 Legit 悄悄行动，以免强制您下降。\n\n"
+				+ "请注意，这也意味着在执行这些操作时，其他玩家将看到您。",
 			false);
 
 	public SneakHack()

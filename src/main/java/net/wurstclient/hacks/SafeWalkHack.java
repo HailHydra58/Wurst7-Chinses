@@ -22,12 +22,11 @@ import net.wurstclient.settings.SliderSetting.ValueDisplay;
 public final class SafeWalkHack extends Hack
 {
 	private final CheckboxSetting sneak =
-		new CheckboxSetting("Sneak at edges", "Visibly sneak at edges.", false);
+		new CheckboxSetting("在边缘处悄悄行动", "在边缘处可见地悄悄行动。", false);
 
 	private final SliderSetting edgeDistance = new SliderSetting(
-		"Sneak edge distance",
-		"How close SafeWalk will let you get to the edge before sneaking.\n\n"
-			+ "This setting is only used when \"Sneak at edges\" is enabled.",
+		"悄悄行动边缘距离",
+		"SafeWalk 允许您在边缘之前悄悄行动之前，离边缘有多近。",
 		0.05, 0.05, 0.25, 0.001, ValueDisplay.DECIMAL.withSuffix("m"));
 
 	private boolean sneaking;
