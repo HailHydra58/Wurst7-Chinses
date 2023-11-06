@@ -75,7 +75,7 @@ public final class SpeedNukerHack extends Hack
 
 	public SpeedNukerHack()
 	{
-		super("SpeedNuker", "闪电侠Pro");
+		super("SpeedNuker", "挖掘附近方块Pro");
 
 		setCategory(Category.BLOCKS);
 		addSetting(range);
