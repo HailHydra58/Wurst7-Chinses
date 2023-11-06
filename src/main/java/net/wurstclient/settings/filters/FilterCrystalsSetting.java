@@ -14,17 +14,17 @@ public final class FilterCrystalsSetting extends EntityFilterCheckbox
 {
 	public FilterCrystalsSetting(String description, boolean checked)
 	{
-		super("Filter end crystals", description, checked);
+		super("选择末影水晶", description, checked);
 	}
-	
+
 	@Override
 	public boolean test(Entity e)
 	{
 		return !(e instanceof EndCrystalEntity);
 	}
-	
+
 	public static FilterCrystalsSetting genericCombat(boolean checked)
 	{
-		return new FilterCrystalsSetting("Won't attack end crystals.", checked);
+		return new FilterCrystalsSetting("不会攻击末影水晶。", checked);
 	}
 }

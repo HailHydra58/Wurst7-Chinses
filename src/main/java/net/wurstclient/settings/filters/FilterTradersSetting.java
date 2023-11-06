@@ -14,18 +14,18 @@ public final class FilterTradersSetting extends EntityFilterCheckbox
 {
 	public FilterTradersSetting(String description, boolean checked)
 	{
-		super("Filter traders", description, checked);
+		super("选择交易者", description, checked);
 	}
-	
+
 	@Override
 	public boolean test(Entity e)
 	{
 		return !(e instanceof MerchantEntity);
 	}
-	
+
 	public static FilterTradersSetting genericCombat(boolean checked)
 	{
 		return new FilterTradersSetting(
-			"Won't attack villagers, wandering traders, etc.", checked);
+			"不会攻击村民、流浪商人等。", checked);
 	}
 }

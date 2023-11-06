@@ -14,22 +14,22 @@ public final class FilterSleepingSetting extends EntityFilterCheckbox
 {
 	public FilterSleepingSetting(String description, boolean checked)
 	{
-		super("Filter sleeping", description, checked);
+		super("选择睡觉中的玩家", description, checked);
 	}
-	
+
 	@Override
 	public boolean test(Entity e)
 	{
 		if(!(e instanceof PlayerEntity))
 			return true;
-		
+
 		return !((PlayerEntity)e).isSleeping();
 	}
-	
+
 	public static FilterSleepingSetting genericCombat(boolean checked)
 	{
-		return new FilterSleepingSetting("Won't attack sleeping players.\n\n"
-			+ "Useful for servers like Mineplex that place sleeping players on the ground to make them look like corpses.",
+		return new FilterSleepingSetting("不会攻击正在睡觉的玩家。\n\n"
+			+ "适用于像 Mineplex 这样的服务器，将正在睡觉的玩家放置在地面上，使它们看起来像尸体。",
 			checked);
 	}
 }

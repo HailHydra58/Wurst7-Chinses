@@ -20,38 +20,38 @@ public final class FilterFlyingSetting extends SliderSetting
 {
 	public FilterFlyingSetting(String description, double value)
 	{
-		super("Filter flying", description, value, 0, 2, 0.05,
+		super("选择飞行中的玩家", description, value, 0, 2, 0.05,
 			ValueDisplay.DECIMAL.withLabel(0, "off"));
 	}
-	
+
 	@Override
 	public boolean test(Entity e)
 	{
 		if(!(e instanceof PlayerEntity))
 			return true;
-		
+
 		Box box = e.getBoundingBox();
 		box = box.union(box.offset(0, -getValue(), 0));
 		return !WurstClient.MC.world.isSpaceEmpty(box);
 	}
-	
+
 	@Override
 	public boolean isFilterEnabled()
 	{
 		return getValue() > 0;
 	}
-	
+
 	@Override
 	public Setting getSetting()
 	{
 		return this;
 	}
-	
+
 	public static FilterFlyingSetting genericCombat(double value)
 	{
 		return new FilterFlyingSetting(
-			"Won't attack players that are at least the given distance above ground.\n\n"
-				+ "Useful for servers that try to detect your hacks by placing a flying bot near you.",
+			"不会攻击距离地面至少指定距离的玩家。\n\n"
+				+ "适用于那些尝试通过在您附近放置飞行机器人来检测您的作弊的服务器。",
 			value);
 	}
 }

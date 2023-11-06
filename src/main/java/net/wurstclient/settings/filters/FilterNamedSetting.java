@@ -13,18 +13,18 @@ public final class FilterNamedSetting extends EntityFilterCheckbox
 {
 	public FilterNamedSetting(String description, boolean checked)
 	{
-		super("Filter named", description, checked);
+		super("选择已命名的实体", description, checked);
 	}
-	
+
 	@Override
 	public boolean test(Entity e)
 	{
 		return !e.hasCustomName();
 	}
-	
+
 	public static FilterNamedSetting genericCombat(boolean checked)
 	{
-		return new FilterNamedSetting("Won't attack name-tagged entities.",
+		return new FilterNamedSetting("不会攻击已命名的实体。",
 			checked);
 	}
 }

@@ -14,18 +14,18 @@ public final class FilterShulkerBulletSetting extends EntityFilterCheckbox
 {
 	public FilterShulkerBulletSetting(String description, boolean checked)
 	{
-		super("Filter shulker bullets", description, checked);
+		super("选择潜影弹", description, checked);
 	}
-	
+
 	@Override
 	public boolean test(Entity e)
 	{
 		return !(e instanceof ShulkerBulletEntity);
 	}
-	
+
 	public static FilterShulkerBulletSetting genericCombat(boolean checked)
 	{
-		return new FilterShulkerBulletSetting("Won't attack shulker bullets.",
+		return new FilterShulkerBulletSetting("不会攻击潜影弹。",
 			checked);
 	}
 }
