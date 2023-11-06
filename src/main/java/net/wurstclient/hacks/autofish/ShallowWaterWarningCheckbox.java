@@ -16,40 +16,39 @@ import net.wurstclient.util.ChatUtils;
 public class ShallowWaterWarningCheckbox extends CheckboxSetting
 {
 	private boolean hasAlreadyWarned;
-	
+
 	public ShallowWaterWarningCheckbox()
 	{
-		super("Shallow water warning",
-			"Displays a warning message in chat when you are fishing in shallow"
-				+ " water.",
+		super("浅水警告",
+			"在您在浅水中垂钓时，在聊天中显示警告消息。",
 			true);
 	}
-	
+
 	public void reset()
 	{
 		hasAlreadyWarned = false;
 	}
-	
+
 	public void checkWaterAround(FishingBobberEntity bobber)
 	{
 		boolean isOpenWater = ((IFishingBobberEntity)bobber)
 			.checkOpenWaterAround(bobber.getBlockPos());
-		
+
 		if(isOpenWater)
 		{
 			hasAlreadyWarned = false;
 			return;
 		}
-		
+
 		if(isChecked() && !hasAlreadyWarned)
 		{
 			ChatUtils.warning("You are currently fishing in shallow water.");
 			ChatUtils.message(
 				"You can't get any treasure items while fishing like this.");
-			
+
 			if(!WurstClient.INSTANCE.getHax().openWaterEspHack.isEnabled())
 				ChatUtils.message("Use OpenWaterESP to find open water.");
-			
+
 			hasAlreadyWarned = true;
 		}
 	}

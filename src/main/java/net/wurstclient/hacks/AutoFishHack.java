@@ -33,28 +33,26 @@ import net.wurstclient.util.ChatUtils;
 public final class AutoFishHack extends Hack
 	implements UpdateListener, PacketInputListener, RenderListener
 {
-	private final SliderSetting validRange = new SliderSetting("Valid range",
-		"Any bites that occur outside of this range will be ignored.\n\n"
-			+ "Increase your range if bites are not being detected, decrease it"
-			+ " if other people's bites are being detected as yours.",
+	private final SliderSetting validRange = new SliderSetting("有效范围",
+		"在此范围之外发生的任何叮咬都将被忽略。\n\n"
+			+ "如果未检测到叮咬，请增加范围，如果发现其他人的叮咬为您的叮咬，请减少它。",
 		1.5, 0.25, 8, 0.25, ValueDisplay.DECIMAL);
 
-	private final SliderSetting catchDelay = new SliderSetting("Catch delay",
-		"How long AutoFish will wait after a bite before reeling in.", 0, 0, 60,
+	private final SliderSetting catchDelay = new SliderSetting("提杆延迟",
+		"在咬钩后等待多久再提杆。", 0, 0, 60,
 		1, ValueDisplay.INTEGER.withSuffix(" ticks"));
 
-	private final SliderSetting retryDelay = new SliderSetting("Retry delay",
-		"If casting or reeling in the fishing rod fails, this is how long"
-			+ " AutoFish will wait before trying again.",
+	private final SliderSetting retryDelay = new SliderSetting("重试延迟",
+		"如果投放或卷线钓竿失败，AutoFish 将等待多长时间再次尝试。",
 		15, 0, 100, 1, ValueDisplay.INTEGER.withSuffix(" ticks"));
 
-	private final SliderSetting patience = new SliderSetting("Patience",
-		"How long AutoFish will wait if it doesn't get a bite before reeling in.",
+	private final SliderSetting patience = new SliderSetting("耐心",
+		"如果 AutoFish 在没有咬钩的情况下等待多长时间再卷线。",
 		60, 10, 120, 1, ValueDisplay.INTEGER.withSuffix("s"));
 
 	private final CheckboxSetting stopWhenInvFull = new CheckboxSetting(
-		"Stop when inv full",
-		"If enabled, AutoFish will turn itself off when your inventory is full.",
+		"当背包已满时停止",
+		"如果启用，当您的物品栏已满时，AutoFish 将自动关闭。",
 		false);
 
 	private final ShallowWaterWarningCheckbox shallowWaterWarning =
@@ -130,7 +128,7 @@ public final class AutoFishHack extends Hack
 			&& MC.player.getInventory().getEmptySlot() == -1)
 		{
 			ChatUtils.message(
-				"AutoFish has stopped because your inventory is full.");
+				"Autofish停止了，因为您的库存已满。");
 			setEnabled(false);
 			return;
 		}

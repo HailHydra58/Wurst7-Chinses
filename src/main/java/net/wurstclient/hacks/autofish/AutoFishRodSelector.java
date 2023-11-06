@@ -26,68 +26,68 @@ import net.wurstclient.util.InventoryUtils;
 public final class AutoFishRodSelector
 {
 	private static final MinecraftClient MC = WurstClient.MC;
-	
+
 	private final CheckboxSetting stopWhenOutOfRods = new CheckboxSetting(
-		"Stop when out of rods",
-		"If enabled, AutoFish will turn itself off when it runs out of fishing rods.",
+		"当没有鱼竿时停止",
+		"如果启用，当鱼竿用完时，AutoFish 将自动关闭。",
 		false);
-	
+
 	private final AutoFishHack autoFish;
 	private int bestRodValue;
 	private int bestRodSlot;
-	
+
 	public AutoFishRodSelector(AutoFishHack autoFish)
 	{
 		this.autoFish = autoFish;
 	}
-	
+
 	public Stream<Setting> getSettings()
 	{
 		return Stream.of(stopWhenOutOfRods);
 	}
-	
+
 	public void reset()
 	{
 		bestRodValue = -1;
 		bestRodSlot = -1;
 	}
-	
+
 	public boolean hasARod()
 	{
 		return bestRodSlot != -1;
 	}
-	
+
 	public boolean isBestRodAlreadySelected()
 	{
 		PlayerInventory inventory = MC.player.getInventory();
 		int selectedSlot = inventory.selectedSlot;
 		ItemStack selectedStack = inventory.getStack(selectedSlot);
-		
+
 		// evaluate selected rod (or lack thereof)
 		bestRodValue = getRodValue(selectedStack);
 		bestRodSlot = bestRodValue > -1 ? selectedSlot : -1;
-		
+
 		// create a stream of all slots that we want to search
 		IntStream stream = IntStream.range(0, 36);
 		stream = IntStream.concat(stream, IntStream.of(40));
-		
+
 		// search inventory for better rod
 		for(int slot : stream.toArray())
 		{
 			ItemStack stack = inventory.getStack(slot);
 			int rodValue = getRodValue(stack);
-			
+
 			if(rodValue > bestRodValue)
 			{
 				bestRodValue = rodValue;
 				bestRodSlot = slot;
 			}
 		}
-		
+
 		// return true if selected rod is best rod
 		return bestRodSlot == selectedSlot;
 	}
-	
+
 	public void selectBestRod()
 	{
 		if(bestRodSlot == -1 && stopWhenOutOfRods.isChecked())
@@ -96,15 +96,15 @@ public final class AutoFishRodSelector
 			autoFish.setEnabled(false);
 			return;
 		}
-		
+
 		InventoryUtils.selectItem(bestRodSlot);
 	}
-	
+
 	private int getRodValue(ItemStack stack)
 	{
 		if(stack.isEmpty() || !(stack.getItem() instanceof FishingRodItem))
 			return -1;
-		
+
 		int luckOTSLvl =
 			EnchantmentHelper.getLevel(Enchantments.LUCK_OF_THE_SEA, stack);
 		int lureLvl = EnchantmentHelper.getLevel(Enchantments.LURE, stack);
@@ -113,7 +113,7 @@ public final class AutoFishRodSelector
 		int mendingBonus =
 			EnchantmentHelper.getLevel(Enchantments.MENDING, stack);
 		int noVanishBonus = EnchantmentHelper.hasVanishingCurse(stack) ? 0 : 1;
-		
+
 		return luckOTSLvl * 9 + lureLvl * 9 + unbreakingLvl * 2 + mendingBonus
 			+ noVanishBonus;
 	}
