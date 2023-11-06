@@ -16,10 +16,10 @@ public final class NoOverlayHack extends Hack
 {
 	public NoOverlayHack()
 	{
-		super("NoOverlay");
+		super("NoOverlay", "水下视野");
 		setCategory(Category.RENDER);
 	}
-	
+
 	// See CameraMixin.onGetSubmersionType() and
 	// InGameOverlayRendererMixin.onRenderUnderwaterOverlay()
 }

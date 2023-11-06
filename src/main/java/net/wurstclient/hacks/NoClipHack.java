@@ -25,10 +25,10 @@ public final class NoClipHack extends Hack
 {
 	public NoClipHack()
 	{
-		super("NoClip");
+		super("NoClip", "穿墙");
 		setCategory(Category.MOVEMENT);
 	}
-	
+
 	@Override
 	public void onEnable()
 	{
@@ -38,7 +38,7 @@ public final class NoClipHack extends Hack
 		EVENTS.add(SetOpaqueCubeListener.class, this);
 		EVENTS.add(AirStrafingSpeedListener.class, this);
 	}
-	
+
 	@Override
 	public void onDisable()
 	{
@@ -47,47 +47,47 @@ public final class NoClipHack extends Hack
 		EVENTS.remove(IsNormalCubeListener.class, this);
 		EVENTS.remove(SetOpaqueCubeListener.class, this);
 		EVENTS.remove(AirStrafingSpeedListener.class, this);
-		
+
 		MC.player.noClip = false;
 	}
-	
+
 	@Override
 	public void onUpdate()
 	{
 		ClientPlayerEntity player = MC.player;
-		
+
 		player.noClip = true;
 		player.fallDistance = 0;
 		player.setOnGround(false);
-		
+
 		player.getAbilities().flying = false;
 		player.setVelocity(0, 0, 0);
-		
+
 		float speed = 0.2F;
 		if(MC.options.jumpKey.isPressed())
 			player.addVelocity(0, speed, 0);
 		if(MC.options.sneakKey.isPressed())
 			player.addVelocity(0, -speed, 0);
 	}
-	
+
 	@Override
 	public void onGetAirStrafingSpeed(AirStrafingSpeedEvent event)
 	{
 		event.setSpeed(0.2F);
 	}
-	
+
 	@Override
 	public void onPlayerMove(IClientPlayerEntity player)
 	{
 		player.setNoClip(true);
 	}
-	
+
 	@Override
 	public void onIsNormalCube(IsNormalCubeEvent event)
 	{
 		event.cancel();
 	}
-	
+
 	@Override
 	public void onSetOpaqueCube(SetOpaqueCubeEvent event)
 	{

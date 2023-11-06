@@ -18,18 +18,18 @@ public final class CameraDistanceHack extends Hack
 {
 	private final SliderSetting distance =
 		new SliderSetting("Distance", 12, -0.5, 150, 0.5, ValueDisplay.DECIMAL);
-	
+
 	public CameraDistanceHack()
 	{
-		super("CameraDistance");
+		super("CameraDistance", "第三人称视野");
 		setCategory(Category.RENDER);
 		addSetting(distance);
 	}
-	
+
 	public double getDistance()
 	{
 		return distance.getValueF();
 	}
-	
+
 	// See CameraMixin.changeClipToSpaceDistance()
 }

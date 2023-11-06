@@ -17,9 +17,9 @@ public final class AntiWobbleHack extends Hack
 {
 	public AntiWobbleHack()
 	{
-		super("AntiWobble");
+		super("AntiWobble", "禁用传送门扭曲");
 		setCategory(Category.RENDER);
 	}
-	
+
 	// See GameRendererMixin.wurstNauseaLerp()
 }

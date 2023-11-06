@@ -16,9 +16,9 @@ public final class PortalGuiHack extends Hack
 {
 	public PortalGuiHack()
 	{
-		super("PortalGUI");
+		super("PortalGUI", "传送门内GUI");
 		setCategory(Category.OTHER);
 	}
-	
+
 	// See ClientPlayerEntityMixin.beforeUpdateNausea()
 }

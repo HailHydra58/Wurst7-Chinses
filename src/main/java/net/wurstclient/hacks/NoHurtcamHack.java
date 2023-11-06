@@ -16,9 +16,9 @@ public final class NoHurtcamHack extends Hack
 {
 	public NoHurtcamHack()
 	{
-		super("NoHurtcam");
+		super("NoHurtcam", "关闭受伤摇晃");
 		setCategory(Category.RENDER);
 	}
-	
+
 	// See GameRendererMixin.onBobViewWhenHurt()
 }

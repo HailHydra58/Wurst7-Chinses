@@ -16,10 +16,10 @@ public final class NoSlowdownHack extends Hack
 {
 	public NoSlowdownHack()
 	{
-		super("NoSlowdown");
+		super("NoSlowdown", "取消减速");
 		setCategory(Category.MOVEMENT);
 	}
-	
+
 	// See BlockMixin.onGetVelocityMultiplier() and
 	// ClientPlayerEntityMixin.wurstIsUsingItem()
 }

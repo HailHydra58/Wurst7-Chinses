@@ -28,25 +28,25 @@ public final class ProphuntEspHack extends Hack implements RenderListener
 {
 	private static final Box FAKE_BLOCK_BOX =
 		new Box(-0.5, 0, -0.5, 0.5, 1, 0.5);
-	
+
 	public ProphuntEspHack()
 	{
-		super("ProphuntESP");
+		super("ProphuntESP", "躲猫猫作弊");
 		setCategory(Category.RENDER);
 	}
-	
+
 	@Override
 	public void onEnable()
 	{
 		EVENTS.add(RenderListener.class, this);
 	}
-	
+
 	@Override
 	public void onDisable()
 	{
 		EVENTS.remove(RenderListener.class, this);
 	}
-	
+
 	@Override
 	public void onRender(MatrixStack matrixStack, float partialTicks)
 	{
@@ -55,43 +55,43 @@ public final class ProphuntEspHack extends Hack implements RenderListener
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		GL11.glEnable(GL11.GL_CULL_FACE);
 		GL11.glDisable(GL11.GL_DEPTH_TEST);
-		
+
 		matrixStack.push();
-		
+
 		BlockPos camPos = RenderUtils.getCameraBlockPos();
 		int regionX = (camPos.getX() >> 9) * 512;
 		int regionZ = (camPos.getZ() >> 9) * 512;
 		RenderUtils.applyRegionalRenderOffset(matrixStack, regionX, regionZ);
-		
+
 		// set color
 		float alpha = 0.5F + 0.25F * MathHelper
 			.sin(System.currentTimeMillis() % 1000 / 500F * (float)Math.PI);
 		RenderSystem.setShaderColor(1, 0, 0, alpha);
-		
+
 		// draw boxes
 		for(Entity entity : MC.world.getEntities())
 		{
 			if(!(entity instanceof MobEntity))
 				continue;
-			
+
 			if(!entity.isInvisible())
 				continue;
-			
+
 			if(MC.player.squaredDistanceTo(entity) < 0.25)
 				continue;
-			
+
 			matrixStack.push();
 			matrixStack.translate(entity.getX() - regionX, entity.getY(),
 				entity.getZ() - regionZ);
-			
+
 			RenderUtils.drawOutlinedBox(FAKE_BLOCK_BOX, matrixStack);
 			RenderUtils.drawSolidBox(FAKE_BLOCK_BOX, matrixStack);
-			
+
 			matrixStack.pop();
 		}
-		
+
 		matrixStack.pop();
-		
+
 		// GL resets
 		RenderSystem.setShaderColor(1, 1, 1, 1);
 		GL11.glEnable(GL11.GL_DEPTH_TEST);

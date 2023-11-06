@@ -19,18 +19,18 @@ public final class NoFireOverlayHack extends Hack
 	private final SliderSetting offset =
 		new SliderSetting("Offset", "The amount to lower the fire overlay by.",
 			0.6, 0.01, 0.6, 0.01, ValueDisplay.DECIMAL);
-	
+
 	public NoFireOverlayHack()
 	{
-		super("NoFireOverlay");
+		super("NoFireOverlay", "关闭着火特效");
 		setCategory(Category.RENDER);
 		addSetting(offset);
 	}
-	
+
 	public float getOverlayOffset()
 	{
 		return isEnabled() ? offset.getValueF() : 0;
 	}
-	
+
 	// See InGameOverlayRendererMixin.getFireOffset()
 }

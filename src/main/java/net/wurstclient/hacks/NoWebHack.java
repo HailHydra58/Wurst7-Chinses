@@ -16,22 +16,22 @@ public final class NoWebHack extends Hack implements UpdateListener
 {
 	public NoWebHack()
 	{
-		super("NoWeb");
+		super("NoWeb", "无视蛛网");
 		setCategory(Category.MOVEMENT);
 	}
-	
+
 	@Override
 	public void onEnable()
 	{
 		EVENTS.add(UpdateListener.class, this);
 	}
-	
+
 	@Override
 	public void onDisable()
 	{
 		EVENTS.remove(UpdateListener.class, this);
 	}
-	
+
 	@Override
 	public void onUpdate()
 	{

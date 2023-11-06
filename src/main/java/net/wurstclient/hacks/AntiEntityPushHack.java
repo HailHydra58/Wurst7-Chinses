@@ -18,22 +18,22 @@ public final class AntiEntityPushHack extends Hack
 {
 	public AntiEntityPushHack()
 	{
-		super("AntiEntityPush");
+		super("AntiEntityPush", "防止被挤动");
 		setCategory(Category.MOVEMENT);
 	}
-	
+
 	@Override
 	protected void onEnable()
 	{
 		EVENTS.add(VelocityFromEntityCollisionListener.class, this);
 	}
-	
+
 	@Override
 	protected void onDisable()
 	{
 		EVENTS.remove(VelocityFromEntityCollisionListener.class, this);
 	}
-	
+
 	@Override
 	public void onVelocityFromEntityCollision(
 		VelocityFromEntityCollisionEvent event)

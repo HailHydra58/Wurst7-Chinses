@@ -16,20 +16,20 @@ public final class TimerHack extends Hack
 {
 	private final SliderSetting speed =
 		new SliderSetting("Speed", 2, 0.1, 20, 0.1, ValueDisplay.DECIMAL);
-	
+
 	public TimerHack()
 	{
-		super("Timer");
+		super("Timer", "速度调整");
 		setCategory(Category.OTHER);
 		addSetting(speed);
 	}
-	
+
 	@Override
 	public String getRenderName()
 	{
 		return getName() + " [" + speed.getValueString() + "]";
 	}
-	
+
 	public float getTimerSpeed()
 	{
 		return isEnabled() ? speed.getValueF() : 1;

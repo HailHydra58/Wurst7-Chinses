@@ -27,36 +27,36 @@ public final class OpenWaterEspHack extends Hack implements RenderListener
 {
 	public OpenWaterEspHack()
 	{
-		super("OpenWaterESP");
-		
+		super("OpenWaterESP", "水域检测");
+
 		setCategory(Category.RENDER);
 	}
-	
+
 	@Override
 	public String getRenderName()
 	{
 		FishingBobberEntity bobber = MC.player.fishHook;
-		
+
 		if(bobber == null)
 			return getName();
-		
+
 		if(isInOpenWater(bobber))
 			return getName() + " [open]";
 		return getName() + " [shallow]";
 	}
-	
+
 	@Override
 	public void onEnable()
 	{
 		EVENTS.add(RenderListener.class, this);
 	}
-	
+
 	@Override
 	public void onDisable()
 	{
 		EVENTS.remove(RenderListener.class, this);
 	}
-	
+
 	@Override
 	public void onRender(MatrixStack matrixStack, float partialTicks)
 	{
@@ -65,36 +65,36 @@ public final class OpenWaterEspHack extends Hack implements RenderListener
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		GL11.glEnable(GL11.GL_CULL_FACE);
 		GL11.glDisable(GL11.GL_DEPTH_TEST);
-		
+
 		matrixStack.push();
 		RenderUtils.applyRegionalRenderOffset(matrixStack);
-		
+
 		FishingBobberEntity bobber = MC.player.fishHook;
 		if(bobber != null)
 			drawOpenWater(matrixStack, bobber);
-		
+
 		matrixStack.pop();
-		
+
 		// GL resets
 		RenderSystem.setShaderColor(1, 1, 1, 1);
 		GL11.glEnable(GL11.GL_DEPTH_TEST);
 		GL11.glDisable(GL11.GL_BLEND);
 	}
-	
+
 	private void drawOpenWater(MatrixStack matrixStack,
 		FishingBobberEntity bobber)
 	{
 		BlockPos camPos = RenderUtils.getCameraBlockPos();
 		int regionX = (camPos.getX() >> 9) * 512;
 		int regionZ = (camPos.getZ() >> 9) * 512;
-		
+
 		matrixStack.push();
 		BlockPos pos = bobber.getBlockPos();
 		matrixStack.translate(pos.getX() - regionX, pos.getY(),
 			pos.getZ() - regionZ);
-		
+
 		Box bb = new Box(-2, -1, -2, 3, 2, 3);
-		
+
 		if(isInOpenWater(bobber))
 			RenderSystem.setShaderColor(0, 1, 0, 0.5F);
 		else
@@ -103,10 +103,10 @@ public final class OpenWaterEspHack extends Hack implements RenderListener
 			RenderUtils.drawCrossBox(bb, matrixStack);
 		}
 		RenderUtils.drawOutlinedBox(bb, matrixStack);
-		
+
 		matrixStack.pop();
 	}
-	
+
 	private boolean isInOpenWater(FishingBobberEntity bobber)
 	{
 		return ((IFishingBobberEntity)bobber)

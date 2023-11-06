@@ -16,9 +16,9 @@ public final class TrueSightHack extends Hack
 {
 	public TrueSightHack()
 	{
-		super("TrueSight");
+		super("TrueSight", "无视隐身");
 		setCategory(Category.RENDER);
 	}
-	
+
 	// See LivingEntityRendererMixin
 }

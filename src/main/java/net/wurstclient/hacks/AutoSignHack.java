@@ -17,24 +17,24 @@ import net.wurstclient.hack.Hack;
 public final class AutoSignHack extends Hack
 {
 	private String[] signText;
-	
+
 	public AutoSignHack()
 	{
-		super("AutoSign");
+		super("AutoSign", "批量告示牌");
 		setCategory(Category.BLOCKS);
 	}
-	
+
 	@Override
 	public void onDisable()
 	{
 		signText = null;
 	}
-	
+
 	public String[] getSignText()
 	{
 		return signText;
 	}
-	
+
 	public void setSignText(String[] signText)
 	{
 		if(isEnabled() && this.signText == null)

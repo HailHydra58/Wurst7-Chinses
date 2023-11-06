@@ -33,19 +33,19 @@ public final class RemoteViewHack extends Hack
 {
 	private final EntityFilterList entityFilters =
 		RemoteViewFilterList.create();
-	
+
 	private Entity entity = null;
 	private boolean wasInvisible;
-	
+
 	private FakePlayerEntity fakePlayer;
-	
+
 	public RemoteViewHack()
 	{
-		super("RemoteView");
+		super("RemoteView", "上帝视角");
 		setCategory(Category.RENDER);
 		entityFilters.forEach(this::addSetting);
 	}
-	
+
 	@Override
 	public void onEnable()
 	{
@@ -59,14 +59,14 @@ public final class RemoteViewHack extends Hack
 					e -> !e.isRemoved() && ((LivingEntity)e).getHealth() > 0)
 				.filter(e -> e != MC.player)
 				.filter(e -> !(e instanceof FakePlayerEntity));
-			
+
 			stream = entityFilters.applyTo(stream);
-			
+
 			entity = stream
 				.min(Comparator
 					.comparingDouble(e -> MC.player.squaredDistanceTo(e)))
 				.orElse(null);
-			
+
 			// check if entity was found
 			if(entity == null)
 			{
@@ -75,31 +75,31 @@ public final class RemoteViewHack extends Hack
 				return;
 			}
 		}
-		
+
 		// save old data
 		wasInvisible = entity.isInvisibleTo(MC.player);
-		
+
 		// enable NoClip
 		MC.player.noClip = true;
-		
+
 		// spawn fake player
 		fakePlayer = new FakePlayerEntity();
-		
+
 		// success message
 		ChatUtils.message("Now viewing " + entity.getName().getString() + ".");
-		
+
 		// add listener
 		EVENTS.add(UpdateListener.class, this);
 		EVENTS.add(PacketOutputListener.class, this);
 	}
-	
+
 	@Override
 	public void onDisable()
 	{
 		// remove listener
 		EVENTS.remove(UpdateListener.class, this);
 		EVENTS.remove(PacketOutputListener.class, this);
-		
+
 		// reset entity
 		if(entity != null)
 		{
@@ -108,10 +108,10 @@ public final class RemoteViewHack extends Hack
 			entity.setInvisible(wasInvisible);
 			entity = null;
 		}
-		
+
 		// disable NoClip
 		MC.player.noClip = false;
-		
+
 		// remove fake player
 		if(fakePlayer != null)
 		{
@@ -119,7 +119,7 @@ public final class RemoteViewHack extends Hack
 			fakePlayer.despawn();
 		}
 	}
-	
+
 	public void onToggledByCommand(String viewName)
 	{
 		// set entity
@@ -136,7 +136,7 @@ public final class RemoteViewHack extends Hack
 				.min(Comparator
 					.comparingDouble(e -> MC.player.squaredDistanceTo(e)))
 				.orElse(null);
-			
+
 			if(entity == null)
 			{
 				ChatUtils
@@ -144,11 +144,11 @@ public final class RemoteViewHack extends Hack
 				return;
 			}
 		}
-		
+
 		// toggle RemoteView
 		setEnabled(!isEnabled());
 	}
-	
+
 	@Override
 	public void onUpdate()
 	{
@@ -158,7 +158,7 @@ public final class RemoteViewHack extends Hack
 			setEnabled(false);
 			return;
 		}
-		
+
 		// update position, rotation, etc.
 		MC.player.copyPositionAndRotation(entity);
 		MC.player.setPos(entity.getX(),
@@ -167,11 +167,11 @@ public final class RemoteViewHack extends Hack
 			entity.getZ());
 		MC.player.resetPosition();
 		MC.player.setVelocity(Vec3d.ZERO);
-		
+
 		// set entity invisible
 		entity.setInvisible(true);
 	}
-	
+
 	@Override
 	public void onSentPacket(PacketOutputEvent event)
 	{

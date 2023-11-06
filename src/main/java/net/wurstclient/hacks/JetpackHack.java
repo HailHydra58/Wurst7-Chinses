@@ -17,26 +17,26 @@ public final class JetpackHack extends Hack implements UpdateListener
 {
 	public JetpackHack()
 	{
-		super("Jetpack");
-		
+		super("Jetpack", "喷气背包");
+
 		setCategory(Category.MOVEMENT);
 	}
-	
+
 	@Override
 	public void onEnable()
 	{
 		WURST.getHax().creativeFlightHack.setEnabled(false);
 		WURST.getHax().flightHack.setEnabled(false);
-		
+
 		EVENTS.add(UpdateListener.class, this);
 	}
-	
+
 	@Override
 	public void onDisable()
 	{
 		EVENTS.remove(UpdateListener.class, this);
 	}
-	
+
 	@Override
 	public void onUpdate()
 	{

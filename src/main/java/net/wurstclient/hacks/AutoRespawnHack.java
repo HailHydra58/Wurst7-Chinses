@@ -17,22 +17,22 @@ public final class AutoRespawnHack extends Hack implements DeathListener
 {
 	public AutoRespawnHack()
 	{
-		super("AutoRespawn");
+		super("AutoRespawn", "自动重生");
 		setCategory(Category.COMBAT);
 	}
-	
+
 	@Override
 	public void onEnable()
 	{
 		EVENTS.add(DeathListener.class, this);
 	}
-	
+
 	@Override
 	public void onDisable()
 	{
 		EVENTS.remove(DeathListener.class, this);
 	}
-	
+
 	@Override
 	public void onDeath()
 	{

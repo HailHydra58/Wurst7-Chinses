@@ -45,36 +45,36 @@ public final class BuildRandomHack extends Hack
 		"\u00a7lFast\u00a7r mode can place blocks behind other blocks.\n"
 			+ "\u00a7lLegit\u00a7r mode can bypass NoCheat+.",
 		Mode.values(), Mode.FAST);
-	
+
 	private final CheckboxSetting checkItem = new CheckboxSetting(
 		"Check held item",
 		"Only builds when you are actually holding a block.\n"
 			+ "Turn this off to build with fire, water, lava, spawn eggs, or if you just want to right click with an empty hand in random places.",
 		true);
-	
+
 	private final CheckboxSetting fastPlace =
 		new CheckboxSetting("Always FastPlace",
 			"Builds as if FastPlace was enabled, even if it's not.", false);
-	
+
 	private final Random random = new Random();
 	private BlockPos lastPos;
-	
+
 	public BuildRandomHack()
 	{
-		super("BuildRandom");
+		super("BuildRandom", "随机放置");
 		setCategory(Category.BLOCKS);
 		addSetting(mode);
 		addSetting(checkItem);
 		addSetting(fastPlace);
 	}
-	
+
 	@Override
 	public void onEnable()
 	{
 		EVENTS.add(UpdateListener.class, this);
 		EVENTS.add(RenderListener.class, this);
 	}
-	
+
 	@Override
 	public void onDisable()
 	{
@@ -82,30 +82,30 @@ public final class BuildRandomHack extends Hack
 		EVENTS.remove(UpdateListener.class, this);
 		EVENTS.remove(RenderListener.class, this);
 	}
-	
+
 	@Override
 	public void onUpdate()
 	{
 		lastPos = null;
-		
+
 		if(WURST.getHax().freecamHack.isEnabled())
 			return;
-		
+
 		// check timer
 		if(!fastPlace.isChecked() && IMC.getItemUseCooldown() > 0)
 			return;
-		
+
 		if(!checkHeldItem())
 			return;
-		
+
 		// set mode & range
 		boolean legitMode = mode.getSelected() == Mode.LEGIT;
 		int range = legitMode ? 5 : 6;
 		int bound = range * 2 + 1;
-		
+
 		BlockPos pos;
 		int attempts = 0;
-		
+
 		do
 		{
 			// generate random position
@@ -113,65 +113,65 @@ public final class BuildRandomHack extends Hack
 				random.nextInt(bound) - range, random.nextInt(bound) - range,
 				random.nextInt(bound) - range);
 			attempts++;
-			
+
 		}while(attempts < 128 && !tryToPlaceBlock(legitMode, pos));
 	}
-	
+
 	private boolean checkHeldItem()
 	{
 		if(!checkItem.isChecked())
 			return true;
-		
+
 		ItemStack stack = MC.player.getInventory().getMainHandStack();
 		return !stack.isEmpty() && stack.getItem() instanceof BlockItem;
 	}
-	
+
 	@Override
 	public void onRender(MatrixStack matrixStack, float partialTicks)
 	{
 		if(lastPos == null)
 			return;
-		
+
 		// GL settings
 		GL11.glEnable(GL11.GL_BLEND);
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		GL11.glEnable(GL11.GL_CULL_FACE);
 		GL11.glDisable(GL11.GL_DEPTH_TEST);
-		
+
 		matrixStack.push();
-		
+
 		BlockPos camPos = RenderUtils.getCameraBlockPos();
 		int regionX = (camPos.getX() >> 9) * 512;
 		int regionZ = (camPos.getZ() >> 9) * 512;
 		RenderUtils.applyRegionalRenderOffset(matrixStack, regionX, regionZ);
-		
+
 		// set position
 		matrixStack.translate(lastPos.getX() - regionX, lastPos.getY(),
 			lastPos.getZ() - regionZ);
-		
+
 		// get color
 		float red = partialTicks * 2F;
 		float green = 2 - red;
-		
+
 		// draw box
 		RenderSystem.setShader(GameRenderer::getPositionProgram);
 		RenderSystem.setShaderColor(red, green, 0, 0.25F);
 		RenderUtils.drawSolidBox(matrixStack);
 		RenderSystem.setShaderColor(red, green, 0, 0.5F);
 		RenderUtils.drawOutlinedBox(matrixStack);
-		
+
 		matrixStack.pop();
-		
+
 		// GL resets
 		GL11.glEnable(GL11.GL_DEPTH_TEST);
 		GL11.glDisable(GL11.GL_BLEND);
 	}
-	
+
 	private boolean tryToPlaceBlock(boolean legitMode, BlockPos pos)
 	{
 		if(!BlockUtils.getState(pos).isReplaceable())
 			return false;
-		
+
 		if(legitMode)
 		{
 			if(!placeBlockLegit(pos))
@@ -180,40 +180,40 @@ public final class BuildRandomHack extends Hack
 		{
 			if(!placeBlockSimple_old(pos))
 				return false;
-			
+
 			MC.player.swingHand(Hand.MAIN_HAND);
 		}
 		IMC.setItemUseCooldown(4);
-		
+
 		lastPos = pos;
 		return true;
 	}
-	
+
 	private boolean placeBlockLegit(BlockPos pos)
 	{
 		Vec3d eyesPos = RotationUtils.getEyesPos();
 		Vec3d posVec = Vec3d.ofCenter(pos);
 		double distanceSqPosVec = eyesPos.squaredDistanceTo(posVec);
-		
+
 		for(Direction side : Direction.values())
 		{
 			BlockPos neighbor = pos.offset(side);
-			
+
 			// check if neighbor can be right clicked
 			if(!BlockUtils.canBeClicked(neighbor))
 				continue;
-			
+
 			Vec3d dirVec = Vec3d.of(side.getVector());
 			Vec3d hitVec = posVec.add(dirVec.multiply(0.5));
-			
+
 			// check if hitVec is within range (4.25 blocks)
 			if(eyesPos.squaredDistanceTo(hitVec) > 18.0625)
 				continue;
-			
+
 			// check if side is visible (facing away from player)
 			if(distanceSqPosVec > eyesPos.squaredDistanceTo(posVec.add(dirVec)))
 				continue;
-			
+
 			// check line of sight
 			if(MC.world
 				.raycast(new RaycastContext(eyesPos, hitVec,
@@ -221,68 +221,68 @@ public final class BuildRandomHack extends Hack
 					RaycastContext.FluidHandling.NONE, MC.player))
 				.getType() != HitResult.Type.MISS)
 				continue;
-			
+
 			// face block
 			Rotation rotation = RotationUtils.getNeededRotations(hitVec);
 			PlayerMoveC2SPacket.LookAndOnGround packet =
 				new PlayerMoveC2SPacket.LookAndOnGround(rotation.getYaw(),
 					rotation.getPitch(), MC.player.isOnGround());
 			MC.player.networkHandler.sendPacket(packet);
-			
+
 			// place block
 			IMC.getInteractionManager().rightClickBlock(neighbor,
 				side.getOpposite(), hitVec);
 			MC.player.swingHand(Hand.MAIN_HAND);
 			IMC.setItemUseCooldown(4);
-			
+
 			return true;
 		}
-		
+
 		return false;
 	}
-	
+
 	private boolean placeBlockSimple_old(BlockPos pos)
 	{
 		Vec3d eyesPos = RotationUtils.getEyesPos();
 		Vec3d posVec = Vec3d.ofCenter(pos);
-		
+
 		for(Direction side : Direction.values())
 		{
 			BlockPos neighbor = pos.offset(side);
-			
+
 			// check if neighbor can be right clicked
 			if(!BlockUtils.canBeClicked(neighbor))
 				continue;
-			
+
 			Vec3d hitVec = posVec.add(Vec3d.of(side.getVector()).multiply(0.5));
-			
+
 			// check if hitVec is within range (6 blocks)
 			if(eyesPos.squaredDistanceTo(hitVec) > 36)
 				continue;
-			
+
 			// place block
 			IMC.getInteractionManager().rightClickBlock(neighbor,
 				side.getOpposite(), hitVec);
-			
+
 			return true;
 		}
-		
+
 		return false;
 	}
-	
+
 	private enum Mode
 	{
 		FAST("Fast"),
-		
+
 		LEGIT("Legit");
-		
+
 		private final String name;
-		
+
 		private Mode(String name)
 		{
 			this.name = name;
 		}
-		
+
 		@Override
 		public String toString()
 		{

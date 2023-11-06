@@ -16,9 +16,9 @@ public final class NoPumpkinHack extends Hack
 {
 	public NoPumpkinHack()
 	{
-		super("NoPumpkin");
+		super("NoPumpkin", "关闭南瓜视野遮挡");
 		setCategory(Category.RENDER);
 	}
-	
+
 	// See IngameHudMixin.onRenderOverlay()
 }

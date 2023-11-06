@@ -21,15 +21,15 @@ public final class NavigatorHack extends Hack
 {
 	public NavigatorHack()
 	{
-		super("Navigator");
+		super("Navigator", "可搜索的GUI");
 	}
-	
+
 	@Override
 	public void onEnable()
 	{
 		if(!(MC.currentScreen instanceof NavigatorMainScreen))
 			MC.setScreen(new NavigatorMainScreen());
-		
+
 		setEnabled(false);
 	}
 }

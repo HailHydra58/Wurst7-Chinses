@@ -22,27 +22,27 @@ public final class AutoStealHack extends Hack
 		"Delay between moving stacks of items.\n"
 			+ "Should be at least 70ms for NoCheat+ servers.",
 		100, 0, 500, 10, ValueDisplay.INTEGER.withSuffix("ms"));
-	
+
 	private final CheckboxSetting buttons =
 		new CheckboxSetting("Steal/Store buttons", true);
-	
+
 	public AutoStealHack()
 	{
-		super("AutoSteal");
+		super("AutoSteal", "自动盗窃");
 		setCategory(Category.ITEMS);
 		addSetting(buttons);
 		addSetting(delay);
 	}
-	
+
 	public boolean areButtonsVisible()
 	{
 		return buttons.isChecked();
 	}
-	
+
 	public long getDelay()
 	{
 		return delay.getValueI();
 	}
-	
+
 	// See ContainerScreen54Mixin and ShulkerBoxScreenMixin
 }

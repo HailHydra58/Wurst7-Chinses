@@ -43,27 +43,27 @@ public final class ItemEspHack extends Hack implements UpdateListener,
 {
 	private final EnumSetting<Style> style =
 		new EnumSetting<>("Style", Style.values(), Style.BOXES);
-	
+
 	private final EnumSetting<BoxSize> boxSize = new EnumSetting<>("Box size",
 		"\u00a7lAccurate\u00a7r mode shows the exact hitbox of each item.\n"
 			+ "\u00a7lFancy\u00a7r mode shows larger boxes that look better.",
 		BoxSize.values(), BoxSize.FANCY);
-	
+
 	private final ColorSetting color = new ColorSetting("Color",
 		"Items will be highlighted in this color.", Color.YELLOW);
-	
+
 	private final ArrayList<ItemEntity> items = new ArrayList<>();
-	
+
 	public ItemEspHack()
 	{
-		super("ItemESP");
+		super("ItemESP", "高亮掉落物");
 		setCategory(Category.RENDER);
-		
+
 		addSetting(style);
 		addSetting(boxSize);
 		addSetting(color);
 	}
-	
+
 	@Override
 	public void onEnable()
 	{
@@ -71,7 +71,7 @@ public final class ItemEspHack extends Hack implements UpdateListener,
 		EVENTS.add(CameraTransformViewBobbingListener.class, this);
 		EVENTS.add(RenderListener.class, this);
 	}
-	
+
 	@Override
 	public void onDisable()
 	{
@@ -79,7 +79,7 @@ public final class ItemEspHack extends Hack implements UpdateListener,
 		EVENTS.remove(CameraTransformViewBobbingListener.class, this);
 		EVENTS.remove(RenderListener.class, this);
 	}
-	
+
 	@Override
 	public void onUpdate()
 	{
@@ -88,7 +88,7 @@ public final class ItemEspHack extends Hack implements UpdateListener,
 			if(entity instanceof ItemEntity)
 				items.add((ItemEntity)entity);
 	}
-	
+
 	@Override
 	public void onCameraTransformViewBobbing(
 		CameraTransformViewBobbingEvent event)
@@ -96,53 +96,53 @@ public final class ItemEspHack extends Hack implements UpdateListener,
 		if(style.getSelected().lines)
 			event.cancel();
 	}
-	
+
 	@Override
 	public void onRender(MatrixStack matrixStack, float partialTicks)
 	{
 		// GL settings
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-		
+
 		matrixStack.push();
-		
+
 		BlockPos camPos = RenderUtils.getCameraBlockPos();
 		int regionX = (camPos.getX() >> 9) * 512;
 		int regionZ = (camPos.getZ() >> 9) * 512;
 		RenderUtils.applyRegionalRenderOffset(matrixStack, regionX, regionZ);
-		
+
 		renderBoxes(matrixStack, partialTicks, regionX, regionZ);
-		
+
 		if(style.getSelected().lines)
 			renderTracers(matrixStack, partialTicks, regionX, regionZ);
-		
+
 		matrixStack.pop();
-		
+
 		// GL resets
 		RenderSystem.setShaderColor(1, 1, 1, 1);
 		GL11.glEnable(GL11.GL_DEPTH_TEST);
 		GL11.glDisable(GL11.GL_BLEND);
 	}
-	
+
 	private void renderBoxes(MatrixStack matrixStack, double partialTicks,
 		int regionX, int regionZ)
 	{
 		float extraSize = boxSize.getSelected().extraSize;
-		
+
 		for(ItemEntity e : items)
 		{
 			matrixStack.push();
-			
+
 			matrixStack.translate(
 				e.prevX + (e.getX() - e.prevX) * partialTicks - regionX,
 				e.prevY + (e.getY() - e.prevY) * partialTicks,
 				e.prevZ + (e.getZ() - e.prevZ) * partialTicks - regionZ);
-			
+
 			if(style.getSelected().boxes)
 			{
 				matrixStack.push();
 				matrixStack.scale(e.getWidth() + extraSize,
 					e.getHeight() + extraSize, e.getWidth() + extraSize);
-				
+
 				GL11.glEnable(GL11.GL_BLEND);
 				GL11.glDisable(GL11.GL_DEPTH_TEST);
 				float[] colorF = color.getColorF();
@@ -150,14 +150,14 @@ public final class ItemEspHack extends Hack implements UpdateListener,
 					0.5F);
 				RenderUtils.drawOutlinedBox(new Box(-0.5, 0, -0.5, 0.5, 1, 0.5),
 					matrixStack);
-				
+
 				matrixStack.pop();
 			}
-			
+
 			matrixStack.pop();
 		}
 	}
-	
+
 	private void renderTracers(MatrixStack matrixStack, double partialTicks,
 		int regionX, int regionZ)
 	{
@@ -165,15 +165,15 @@ public final class ItemEspHack extends Hack implements UpdateListener,
 		GL11.glDisable(GL11.GL_DEPTH_TEST);
 		float[] colorF = color.getColorF();
 		RenderSystem.setShaderColor(colorF[0], colorF[1], colorF[2], 0.5F);
-		
+
 		Matrix4f matrix = matrixStack.peek().getPositionMatrix();
 		Tessellator tessellator = RenderSystem.renderThreadTesselator();
 		BufferBuilder bufferBuilder = tessellator.getBuffer();
 		RenderSystem.setShader(GameRenderer::getPositionProgram);
-		
+
 		Vec3d start = RotationUtils.getClientLookVec()
 			.add(RenderUtils.getCameraPos()).subtract(regionX, 0, regionZ);
-		
+
 		bufferBuilder.begin(VertexFormat.DrawMode.DEBUG_LINES,
 			VertexFormats.POSITION);
 		for(ItemEntity e : items)
@@ -183,7 +183,7 @@ public final class ItemEspHack extends Hack implements UpdateListener,
 					.subtract(e.prevX, e.prevY, e.prevZ)
 					.multiply(1 - partialTicks))
 				.subtract(regionX, 0, regionZ);
-			
+
 			bufferBuilder
 				.vertex(matrix, (float)start.x, (float)start.y, (float)start.z)
 				.next();
@@ -193,45 +193,45 @@ public final class ItemEspHack extends Hack implements UpdateListener,
 		}
 		tessellator.draw();
 	}
-	
+
 	private enum Style
 	{
 		BOXES("Boxes only", true, false),
 		LINES("Lines only", false, true),
 		LINES_AND_BOXES("Lines and boxes", true, true);
-		
+
 		private final String name;
 		private final boolean boxes;
 		private final boolean lines;
-		
+
 		private Style(String name, boolean boxes, boolean lines)
 		{
 			this.name = name;
 			this.boxes = boxes;
 			this.lines = lines;
 		}
-		
+
 		@Override
 		public String toString()
 		{
 			return name;
 		}
 	}
-	
+
 	private enum BoxSize
 	{
 		ACCURATE("Accurate", 0),
 		FANCY("Fancy", 0.1F);
-		
+
 		private final String name;
 		private final float extraSize;
-		
+
 		private BoxSize(String name, float extraSize)
 		{
 			this.name = name;
 			this.extraSize = extraSize;
 		}
-		
+
 		@Override
 		public String toString()
 		{

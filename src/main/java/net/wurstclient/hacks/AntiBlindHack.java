@@ -19,9 +19,9 @@ public final class AntiBlindHack extends Hack
 {
 	public AntiBlindHack()
 	{
-		super("AntiBlind");
+		super("AntiBlind", "防止失明");
 		setCategory(Category.RENDER);
 	}
-	
+
 	// See BackgroundRendererMixin, LightTextureManagerMixin, WorldRendererMixin
 }

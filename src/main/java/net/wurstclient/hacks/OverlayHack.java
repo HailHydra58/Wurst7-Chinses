@@ -20,20 +20,20 @@ public final class OverlayHack extends Hack
 	implements UpdateListener, RenderListener
 {
 	private final OverlayRenderer renderer = new OverlayRenderer();
-	
+
 	public OverlayHack()
 	{
-		super("Overlay");
+		super("Overlay", "开采特效");
 		setCategory(Category.RENDER);
 	}
-	
+
 	@Override
 	public void onEnable()
 	{
 		EVENTS.add(UpdateListener.class, this);
 		EVENTS.add(RenderListener.class, this);
 	}
-	
+
 	@Override
 	public void onDisable()
 	{
@@ -41,7 +41,7 @@ public final class OverlayHack extends Hack
 		EVENTS.remove(RenderListener.class, this);
 		renderer.resetProgress();
 	}
-	
+
 	@Override
 	public void onUpdate()
 	{
@@ -50,17 +50,17 @@ public final class OverlayHack extends Hack
 		else
 			renderer.resetProgress();
 	}
-	
+
 	@Override
 	public void onRender(MatrixStack matrixStack, float partialTicks)
 	{
 		if(!MC.interactionManager.isBreakingBlock())
 			return;
-		
+
 		if(!(MC.crosshairTarget instanceof BlockHitResult blockHitResult)
 			|| blockHitResult.getType() != HitResult.Type.BLOCK)
 			return;
-		
+
 		renderer.render(matrixStack, partialTicks,
 			blockHitResult.getBlockPos());
 	}

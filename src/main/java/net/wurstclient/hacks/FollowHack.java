@@ -46,27 +46,27 @@ public final class FollowHack extends Hack
 	private EntityPathFinder pathFinder;
 	private PathProcessor processor;
 	private int ticksProcessing;
-	
+
 	private final SliderSetting distance =
 		new SliderSetting("Distance", "How closely to follow the target.", 1, 1,
 			12, 0.5, ValueDisplay.DECIMAL);
-	
+
 	private final CheckboxSetting useAi =
 		new CheckboxSetting("Use AI (experimental)", false);
-	
+
 	private final EntityFilterList entityFilters = FollowFilterList.create();
-	
+
 	public FollowHack()
 	{
-		super("Follow");
-		
+		super("Follow", "自动跟随");
+
 		setCategory(Category.MOVEMENT);
 		addSetting(distance);
 		addSetting(useAi);
-		
+
 		entityFilters.forEach(this::addSetting);
 	}
-	
+
 	@Override
 	public String getRenderName()
 	{
@@ -74,14 +74,14 @@ public final class FollowHack extends Hack
 			return "Following " + entity.getName().getString();
 		return "Follow";
 	}
-	
+
 	@Override
 	public void onEnable()
 	{
 		WURST.getHax().fightBotHack.setEnabled(false);
 		WURST.getHax().protectHack.setEnabled(false);
 		WURST.getHax().tunnellerHack.setEnabled(false);
-		
+
 		if(entity == null)
 		{
 			Stream<Entity> stream =
@@ -92,14 +92,14 @@ public final class FollowHack extends Hack
 						|| e instanceof AbstractMinecartEntity)
 					.filter(e -> e != MC.player)
 					.filter(e -> !(e instanceof FakePlayerEntity));
-			
+
 			stream = entityFilters.applyTo(stream);
-			
+
 			entity = stream
 				.min(Comparator
 					.comparingDouble(e -> MC.player.squaredDistanceTo(e)))
 				.orElse(null);
-			
+
 			if(entity == null)
 			{
 				ChatUtils.error("Could not find a valid entity.");
@@ -107,31 +107,31 @@ public final class FollowHack extends Hack
 				return;
 			}
 		}
-		
+
 		pathFinder = new EntityPathFinder();
 		EVENTS.add(UpdateListener.class, this);
 		EVENTS.add(RenderListener.class, this);
 		ChatUtils.message("Now following " + entity.getName().getString());
 	}
-	
+
 	@Override
 	public void onDisable()
 	{
 		EVENTS.remove(UpdateListener.class, this);
 		EVENTS.remove(RenderListener.class, this);
-		
+
 		pathFinder = null;
 		processor = null;
 		ticksProcessing = 0;
 		PathProcessor.releaseControls();
-		
+
 		if(entity != null)
 			ChatUtils
 				.message("No longer following " + entity.getName().getString());
-		
+
 		entity = null;
 	}
-	
+
 	@Override
 	public void onUpdate()
 	{
@@ -143,7 +143,7 @@ public final class FollowHack extends Hack
 			setEnabled(false);
 			return;
 		}
-		
+
 		// check if entity died or disappeared
 		if(entity.isRemoved() || entity instanceof LivingEntity
 			&& ((LivingEntity)entity).getHealth() <= 0)
@@ -160,19 +160,19 @@ public final class FollowHack extends Hack
 				.min(Comparator
 					.comparingDouble(e -> MC.player.squaredDistanceTo(e)))
 				.orElse(null);
-			
+
 			if(entity == null)
 			{
 				ChatUtils.message("No longer following entity");
 				setEnabled(false);
 				return;
 			}
-			
+
 			pathFinder = new EntityPathFinder();
 			processor = null;
 			ticksProcessing = 0;
 		}
-		
+
 		if(useAi.isChecked())
 		{
 			// reset pathfinder
@@ -184,7 +184,7 @@ public final class FollowHack extends Hack
 				processor = null;
 				ticksProcessing = 0;
 			}
-			
+
 			// find path
 			if(!pathFinder.isDone() && !pathFinder.isFailed())
 			{
@@ -195,7 +195,7 @@ public final class FollowHack extends Hack
 				pathFinder.formatPath();
 				processor = pathFinder.getProcessor();
 			}
-			
+
 			// process path
 			if(!processor.isDone())
 			{
@@ -207,11 +207,11 @@ public final class FollowHack extends Hack
 			// jump if necessary
 			if(MC.player.horizontalCollision && MC.player.isOnGround())
 				MC.player.jump();
-			
+
 			// swim up if necessary
 			if(MC.player.isTouchingWater() && MC.player.getY() < entity.getY())
 				MC.player.setVelocity(MC.player.getVelocity().add(0, 0.04, 0));
-			
+
 			// control height if flying
 			if(!MC.player.isOnGround()
 				&& (MC.player.getAbilities().flying
@@ -229,7 +229,7 @@ public final class FollowHack extends Hack
 				MC.options.sneakKey.setPressed(false);
 				MC.options.jumpKey.setPressed(false);
 			}
-			
+
 			// follow entity
 			WURST.getRotationFaker()
 				.faceVectorClient(entity.getBoundingBox().getCenter());
@@ -239,7 +239,7 @@ public final class FollowHack extends Hack
 					MC.player.getY(), entity.getZ()) > distanceSq);
 		}
 	}
-	
+
 	@Override
 	public void onRender(MatrixStack matrixStack, float partialTicks)
 	{
@@ -248,12 +248,12 @@ public final class FollowHack extends Hack
 		pathFinder.renderPath(matrixStack, pathCmd.isDebugMode(),
 			pathCmd.isDepthTest());
 	}
-	
+
 	public void setEntity(Entity entity)
 	{
 		this.entity = entity;
 	}
-	
+
 	private class EntityPathFinder extends PathFinder
 	{
 		public EntityPathFinder()
@@ -261,7 +261,7 @@ public final class FollowHack extends Hack
 			super(BlockPos.ofFloored(entity.getPos()));
 			setThinkTime(1);
 		}
-		
+
 		@Override
 		protected boolean checkDone()
 		{
@@ -269,13 +269,13 @@ public final class FollowHack extends Hack
 			double distanceSq = Math.pow(distance.getValue(), 2);
 			return done = entity.squaredDistanceTo(center) <= distanceSq;
 		}
-		
+
 		@Override
 		public ArrayList<PathPos> formatPath()
 		{
 			if(!done)
 				failed = true;
-			
+
 			return super.formatPath();
 		}
 	}

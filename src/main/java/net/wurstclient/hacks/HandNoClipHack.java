@@ -31,19 +31,19 @@ public final class HandNoClipHack extends Hack
 		"minecraft:red_shulker_box", "minecraft:shulker_box",
 		"minecraft:trapped_chest", "minecraft:white_shulker_box",
 		"minecraft:yellow_shulker_box");
-	
+
 	public HandNoClipHack()
 	{
-		super("HandNoClip");
-		
+		super("HandNoClip", "手部穿墙");
+
 		setCategory(Category.BLOCKS);
 		addSetting(blocks);
 	}
-	
+
 	public boolean isBlockInList(BlockPos pos)
 	{
 		return blocks.getBlockNames().contains(BlockUtils.getName(pos));
 	}
-	
+
 	// See AbstractBlockStateMixin.onGetOutlineShape()
 }

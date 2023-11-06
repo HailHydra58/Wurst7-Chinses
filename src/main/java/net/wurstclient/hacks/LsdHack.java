@@ -19,10 +19,10 @@ public final class LsdHack extends Hack
 {
 	public LsdHack()
 	{
-		super("LSD");
+		super("LSD", "眩晕");
 		setCategory(Category.FUN);
 	}
-	
+
 	@Override
 	public void onEnable()
 	{
@@ -31,14 +31,14 @@ public final class LsdHack extends Hack
 			setEnabled(false);
 			return;
 		}
-		
+
 		if(MC.gameRenderer.getPostProcessor() != null)
 			MC.gameRenderer.disablePostProcessor();
-		
+
 		((IGameRenderer)MC.gameRenderer)
 			.loadWurstShader(new Identifier("shaders/post/wobble.json"));
 	}
-	
+
 	@Override
 	public void onDisable()
 	{

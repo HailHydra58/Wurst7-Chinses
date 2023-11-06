@@ -16,9 +16,9 @@ public final class RainbowUiHack extends Hack
 {
 	public RainbowUiHack()
 	{
-		super("RainbowUI");
+		super("RainbowUI", "彩色UI");
 		setCategory(Category.FUN);
 	}
-	
+
 	// See ClickGui.updateColors()
 }

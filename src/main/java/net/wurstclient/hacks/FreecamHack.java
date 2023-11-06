@@ -50,24 +50,24 @@ public final class FreecamHack extends Hack implements UpdateListener,
 {
 	private final SliderSetting speed =
 		new SliderSetting("Speed", 1, 0.05, 10, 0.05, ValueDisplay.DECIMAL);
-	
+
 	private final CheckboxSetting tracer = new CheckboxSetting("Tracer",
 		"Draws a line to your character's actual position.", false);
-	
+
 	private final ColorSetting color =
 		new ColorSetting("Tracer color", Color.WHITE);
-	
+
 	private FakePlayerEntity fakePlayer;
-	
+
 	public FreecamHack()
 	{
-		super("Freecam");
+		super("Freecam", "灵魂出窍");
 		setCategory(Category.RENDER);
 		addSetting(speed);
 		addSetting(tracer);
 		addSetting(color);
 	}
-	
+
 	@Override
 	public void onEnable()
 	{
@@ -80,17 +80,17 @@ public final class FreecamHack extends Hack implements UpdateListener,
 		EVENTS.add(IsNormalCubeListener.class, this);
 		EVENTS.add(SetOpaqueCubeListener.class, this);
 		EVENTS.add(RenderListener.class, this);
-		
+
 		fakePlayer = new FakePlayerEntity();
-		
+
 		GameOptions gs = MC.options;
 		KeyBinding[] bindings = {gs.forwardKey, gs.backKey, gs.leftKey,
 			gs.rightKey, gs.jumpKey, gs.sneakKey};
-		
+
 		for(KeyBinding binding : bindings)
 			((IKeyBinding)binding).resetPressedState();
 	}
-	
+
 	@Override
 	public void onDisable()
 	{
@@ -103,58 +103,58 @@ public final class FreecamHack extends Hack implements UpdateListener,
 		EVENTS.remove(IsNormalCubeListener.class, this);
 		EVENTS.remove(SetOpaqueCubeListener.class, this);
 		EVENTS.remove(RenderListener.class, this);
-		
+
 		fakePlayer.resetPlayerPosition();
 		fakePlayer.despawn();
-		
+
 		ClientPlayerEntity player = MC.player;
 		player.setVelocity(Vec3d.ZERO);
-		
+
 		MC.worldRenderer.reload();
 	}
-	
+
 	@Override
 	public void onUpdate()
 	{
 		ClientPlayerEntity player = MC.player;
 		player.setVelocity(Vec3d.ZERO);
 		player.getAbilities().flying = false;
-		
+
 		player.setOnGround(false);
 		Vec3d velocity = player.getVelocity();
-		
+
 		if(MC.options.jumpKey.isPressed())
 			player.setVelocity(velocity.add(0, speed.getValue(), 0));
-		
+
 		if(MC.options.sneakKey.isPressed())
 			player.setVelocity(velocity.subtract(0, speed.getValue(), 0));
 	}
-	
+
 	@Override
 	public void onGetAirStrafingSpeed(AirStrafingSpeedEvent event)
 	{
 		event.setSpeed(speed.getValueF());
 	}
-	
+
 	@Override
 	public void onSentPacket(PacketOutputEvent event)
 	{
 		if(event.getPacket() instanceof PlayerMoveC2SPacket)
 			event.cancel();
 	}
-	
+
 	@Override
 	public void onIsPlayerInWater(IsPlayerInWaterEvent event)
 	{
 		event.setInWater(false);
 	}
-	
+
 	@Override
 	public void onIsPlayerInLava(IsPlayerInLavaEvent event)
 	{
 		event.setInLava(false);
 	}
-	
+
 	@Override
 	public void onCameraTransformViewBobbing(
 		CameraTransformViewBobbingEvent event)
@@ -162,40 +162,40 @@ public final class FreecamHack extends Hack implements UpdateListener,
 		if(tracer.isChecked())
 			event.cancel();
 	}
-	
+
 	@Override
 	public void onIsNormalCube(IsNormalCubeEvent event)
 	{
 		event.cancel();
 	}
-	
+
 	@Override
 	public void onSetOpaqueCube(SetOpaqueCubeEvent event)
 	{
 		event.cancel();
 	}
-	
+
 	@Override
 	public void onRender(MatrixStack matrixStack, float partialTicks)
 	{
 		if(fakePlayer == null || !tracer.isChecked())
 			return;
-		
+
 		// GL settings
 		GL11.glEnable(GL11.GL_BLEND);
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		GL11.glDisable(GL11.GL_DEPTH_TEST);
-		
+
 		matrixStack.push();
-		
+
 		BlockPos camPos = RenderUtils.getCameraBlockPos();
 		int regionX = (camPos.getX() >> 9) * 512;
 		int regionZ = (camPos.getZ() >> 9) * 512;
 		RenderUtils.applyRegionalRenderOffset(matrixStack, regionX, regionZ);
-		
+
 		float[] colorF = color.getColorF();
 		RenderSystem.setShaderColor(colorF[0], colorF[1], colorF[2], 0.5F);
-		
+
 		// box
 		matrixStack.push();
 		matrixStack.translate(fakePlayer.getX() - regionX, fakePlayer.getY(),
@@ -205,18 +205,18 @@ public final class FreecamHack extends Hack implements UpdateListener,
 		Box bb = new Box(-0.5, 0, -0.5, 0.5, 1, 0.5);
 		RenderUtils.drawOutlinedBox(bb, matrixStack);
 		matrixStack.pop();
-		
+
 		// line
 		Vec3d start = RotationUtils.getClientLookVec()
 			.add(RenderUtils.getCameraPos()).subtract(regionX, 0, regionZ);
 		Vec3d end = fakePlayer.getBoundingBox().getCenter().subtract(regionX, 0,
 			regionZ);
-		
+
 		Matrix4f matrix = matrixStack.peek().getPositionMatrix();
 		Tessellator tessellator = RenderSystem.renderThreadTesselator();
 		BufferBuilder bufferBuilder = tessellator.getBuffer();
 		RenderSystem.setShader(GameRenderer::getPositionProgram);
-		
+
 		bufferBuilder.begin(VertexFormat.DrawMode.DEBUG_LINES,
 			VertexFormats.POSITION);
 		bufferBuilder
@@ -225,9 +225,9 @@ public final class FreecamHack extends Hack implements UpdateListener,
 		bufferBuilder.vertex(matrix, (float)end.x, (float)end.y, (float)end.z)
 			.next();
 		tessellator.draw();
-		
+
 		matrixStack.pop();
-		
+
 		// GL resets
 		RenderSystem.setShaderColor(1, 1, 1, 1);
 		GL11.glEnable(GL11.GL_DEPTH_TEST);

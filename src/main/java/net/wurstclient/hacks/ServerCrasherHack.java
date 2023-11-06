@@ -27,11 +27,11 @@ public final class ServerCrasherHack extends Hack
 {
 	public ServerCrasherHack()
 	{
-		super("ServerCrasher");
-		
+		super("ServerCrasher", "服务器崩溃");
+
 		setCategory(Category.ITEMS);
 	}
-	
+
 	@Override
 	public void onEnable()
 	{
@@ -41,41 +41,41 @@ public final class ServerCrasherHack extends Hack
 			setEnabled(false);
 			return;
 		}
-		
+
 		Item item = Registries.ITEM.get(new Identifier("creeper_spawn_egg"));
 		ItemStack stack = new ItemStack(item, 1);
 		stack.setNbt(createNBT());
-		
+
 		placeStackInHotbar(stack);
 		setEnabled(false);
 	}
-	
+
 	private NbtCompound createNBT()
 	{
 		try
 		{
 			return StringNbtReader.parse(
 				"{display:{Lore:['\"\u00a7r1. Place item in dispenser.\"','\"\u00a7r2. Dispense item.\"','\"\u00a7r3. Ssss... BOOM!\"'],Name:'{\"text\":\"\u00a7rServer Creeper\"}'},EntityTag:{CustomName:\"TEST\",id:\"Creeper\",CustomNameVisible:1}}");
-			
+
 		}catch(CommandSyntaxException e)
 		{
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	private void placeStackInHotbar(ItemStack stack)
 	{
 		for(int i = 0; i < 9; i++)
 		{
 			if(!MC.player.getInventory().getStack(i).isEmpty())
 				continue;
-			
+
 			MC.player.networkHandler.sendPacket(
 				new CreativeInventoryActionC2SPacket(36 + i, stack));
 			ChatUtils.message("Item created.");
 			return;
 		}
-		
+
 		ChatUtils.error("Please clear a slot in your hotbar.");
 	}
 }

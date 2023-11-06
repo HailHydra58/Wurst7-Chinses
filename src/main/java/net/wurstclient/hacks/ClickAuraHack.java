@@ -36,36 +36,36 @@ public final class ClickAuraHack extends Hack
 {
 	private final SliderSetting range =
 		new SliderSetting("Range", 5, 1, 10, 0.05, ValueDisplay.DECIMAL);
-	
+
 	private final AttackSpeedSliderSetting speed =
 		new AttackSpeedSliderSetting();
-	
+
 	private final EnumSetting<Priority> priority = new EnumSetting<>("Priority",
 		"Determines which entity will be attacked first.\n"
 			+ "\u00a7lDistance\u00a7r - Attacks the closest entity.\n"
 			+ "\u00a7lAngle\u00a7r - Attacks the entity that requires the least head movement.\n"
 			+ "\u00a7lHealth\u00a7r - Attacks the weakest entity.",
 		Priority.values(), Priority.ANGLE);
-	
+
 	private final SliderSetting fov =
 		new SliderSetting("FOV", 360, 30, 360, 10, ValueDisplay.DEGREES);
-	
+
 	private final EntityFilterList entityFilters =
 		EntityFilterList.genericCombat();
-	
+
 	public ClickAuraHack()
 	{
-		super("ClickAura");
-		
+		super("ClickAura", "瞄准自动攻击");
+
 		setCategory(Category.COMBAT);
 		addSetting(range);
 		addSetting(speed);
 		addSetting(priority);
 		addSetting(fov);
-		
+
 		entityFilters.forEach(this::addSetting);
 	}
-	
+
 	@Override
 	public void onEnable()
 	{
@@ -79,60 +79,60 @@ public final class ClickAuraHack extends Hack
 		WURST.getHax().protectHack.setEnabled(false);
 		WURST.getHax().triggerBotHack.setEnabled(false);
 		WURST.getHax().tpAuraHack.setEnabled(false);
-		
+
 		speed.resetTimer();
 		EVENTS.add(UpdateListener.class, this);
 		EVENTS.add(LeftClickListener.class, this);
 	}
-	
+
 	@Override
 	public void onDisable()
 	{
 		EVENTS.remove(UpdateListener.class, this);
 		EVENTS.remove(LeftClickListener.class, this);
 	}
-	
+
 	@Override
 	public void onUpdate()
 	{
 		if(!MC.options.attackKey.isPressed())
 			return;
-		
+
 		speed.updateTimer();
 		if(!speed.isTimeToAttack())
 			return;
-		
+
 		attack();
 	}
-	
+
 	@Override
 	public void onLeftClick(LeftClickEvent event)
 	{
 		attack();
 	}
-	
+
 	private void attack()
 	{
 		// set entity
 		ClientPlayerEntity player = MC.player;
 		Stream<Entity> stream = EntityUtils.getAttackableEntities();
-		
+
 		double rangeSq = Math.pow(range.getValue(), 2);
 		stream = stream.filter(e -> player.squaredDistanceTo(e) <= rangeSq);
-		
+
 		if(fov.getValue() < 360.0)
 			stream = stream.filter(e -> RotationUtils.getAngleToLookVec(
 				e.getBoundingBox().getCenter()) <= fov.getValue() / 2.0);
-		
+
 		stream = entityFilters.applyTo(stream);
-		
+
 		Entity target =
 			stream.min(priority.getSelected().comparator).orElse(null);
 		if(target == null)
 			return;
-		
+
 		WURST.getHax().autoSwordHack.setSlot();
-		
+
 		// face entity
 		Rotation rotation = RotationUtils
 			.getNeededRotations(target.getBoundingBox().getCenter());
@@ -140,34 +140,34 @@ public final class ClickAuraHack extends Hack
 			new PlayerMoveC2SPacket.LookAndOnGround(rotation.getYaw(),
 				rotation.getPitch(), MC.player.isOnGround());
 		MC.player.networkHandler.sendPacket(packet);
-		
+
 		// attack entity
 		WURST.getHax().criticalsHack.doCritical();
 		MC.interactionManager.attackEntity(player, target);
 		player.swingHand(Hand.MAIN_HAND);
 		speed.resetTimer();
 	}
-	
+
 	private enum Priority
 	{
 		DISTANCE("Distance", e -> MC.player.squaredDistanceTo(e)),
-		
+
 		ANGLE("Angle",
 			e -> RotationUtils
 				.getAngleToLookVec(e.getBoundingBox().getCenter())),
-		
+
 		HEALTH("Health", e -> e instanceof LivingEntity
 			? ((LivingEntity)e).getHealth() : Integer.MAX_VALUE);
-		
+
 		private final String name;
 		private final Comparator<Entity> comparator;
-		
+
 		private Priority(String name, ToDoubleFunction<Entity> keyExtractor)
 		{
 			this.name = name;
 			comparator = Comparator.comparingDouble(keyExtractor);
 		}
-		
+
 		@Override
 		public String toString()
 		{

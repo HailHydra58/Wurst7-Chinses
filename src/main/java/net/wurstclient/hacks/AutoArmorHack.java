@@ -41,28 +41,28 @@ public final class AutoArmorHack extends Hack
 		"Use enchantments",
 		"Whether or not to consider the Protection enchantment when calculating armor strength.",
 		true);
-	
+
 	private final CheckboxSetting swapWhileMoving = new CheckboxSetting(
 		"Swap while moving",
 		"Whether or not to swap armor pieces while the player is moving.\n\n"
 			+ "\u00a7c\u00a7lWARNING:\u00a7r This would not be possible without cheats. It may raise suspicion.",
 		false);
-	
+
 	private final SliderSetting delay = new SliderSetting("Delay",
 		"Amount of ticks to wait before swapping the next piece of armor.", 2,
 		0, 20, 1, ValueDisplay.INTEGER);
-	
+
 	private int timer;
-	
+
 	public AutoArmorHack()
 	{
-		super("AutoArmor");
+		super("AutoArmor", "自动盔甲");
 		setCategory(Category.COMBAT);
 		addSetting(useEnchantments);
 		addSetting(swapWhileMoving);
 		addSetting(delay);
 	}
-	
+
 	@Override
 	public void onEnable()
 	{
@@ -70,14 +70,14 @@ public final class AutoArmorHack extends Hack
 		EVENTS.add(UpdateListener.class, this);
 		EVENTS.add(PacketOutputListener.class, this);
 	}
-	
+
 	@Override
 	public void onDisable()
 	{
 		EVENTS.remove(UpdateListener.class, this);
 		EVENTS.remove(PacketOutputListener.class, this);
 	}
-	
+
 	@Override
 	public void onUpdate()
 	{
@@ -87,55 +87,55 @@ public final class AutoArmorHack extends Hack
 			timer--;
 			return;
 		}
-		
+
 		// check screen
 		if(MC.currentScreen instanceof HandledScreen
 			&& !(MC.currentScreen instanceof InventoryScreen))
 			return;
-		
+
 		ClientPlayerEntity player = MC.player;
 		PlayerInventory inventory = player.getInventory();
-		
+
 		if(!swapWhileMoving.isChecked() && (player.input.movementForward != 0
 			|| player.input.movementSideways != 0))
 			return;
-		
+
 		// store slots and values of best armor pieces
 		int[] bestArmorSlots = new int[4];
 		int[] bestArmorValues = new int[4];
-		
+
 		// initialize with currently equipped armor
 		for(int type = 0; type < 4; type++)
 		{
 			bestArmorSlots[type] = -1;
-			
+
 			ItemStack stack = inventory.getArmorStack(type);
 			if(stack.isEmpty() || !(stack.getItem() instanceof ArmorItem))
 				continue;
-			
+
 			ArmorItem item = (ArmorItem)stack.getItem();
 			bestArmorValues[type] = getArmorValue(item, stack);
 		}
-		
+
 		// search inventory for better armor
 		for(int slot = 0; slot < 36; slot++)
 		{
 			ItemStack stack = inventory.getStack(slot);
-			
+
 			if(stack.isEmpty() || !(stack.getItem() instanceof ArmorItem))
 				continue;
-			
+
 			ArmorItem item = (ArmorItem)stack.getItem();
 			int armorType = item.getSlotType().getEntitySlotId();
 			int armorValue = getArmorValue(item, stack);
-			
+
 			if(armorValue > bestArmorValues[armorType])
 			{
 				bestArmorSlots[armorType] = slot;
 				bestArmorValues[armorType] = armorValue;
 			}
 		}
-		
+
 		// equip better armor in random order
 		ArrayList<Integer> types = new ArrayList<>(Arrays.asList(0, 1, 2, 3));
 		Collections.shuffle(types);
@@ -145,51 +145,51 @@ public final class AutoArmorHack extends Hack
 			int slot = bestArmorSlots[type];
 			if(slot == -1)
 				continue;
-				
+
 			// check if armor can be swapped
 			// needs 1 free slot where it can put the old armor
 			ItemStack oldArmor = inventory.getArmorStack(type);
 			if(!oldArmor.isEmpty() && inventory.getEmptySlot() == -1)
 				continue;
-			
+
 			// hotbar fix
 			if(slot < 9)
 				slot += 36;
-			
+
 			// swap armor
 			if(!oldArmor.isEmpty())
 				IMC.getInteractionManager().windowClick_QUICK_MOVE(8 - type);
 			IMC.getInteractionManager().windowClick_QUICK_MOVE(slot);
-			
+
 			break;
 		}
 	}
-	
+
 	@Override
 	public void onSentPacket(PacketOutputEvent event)
 	{
 		if(event.getPacket() instanceof ClickSlotC2SPacket)
 			timer = delay.getValueI();
 	}
-	
+
 	private int getArmorValue(ArmorItem item, ItemStack stack)
 	{
 		int armorPoints = item.getProtection();
 		int prtPoints = 0;
 		int armorToughness = (int)((IArmorItem)item).getToughness();
 		int armorType = item.getMaterial().getProtection(Type.LEGGINGS);
-		
+
 		if(useEnchantments.isChecked())
 		{
 			Enchantment protection = Enchantments.PROTECTION;
 			int prtLvl = EnchantmentHelper.getLevel(protection, stack);
-			
+
 			ClientPlayerEntity player = MC.player;
 			DamageSource dmgSource =
 				player.getDamageSources().playerAttack(player);
 			prtPoints = protection.getProtectionAmount(prtLvl, dmgSource);
 		}
-		
+
 		return armorPoints * 5 + prtPoints * 3 + armorToughness + armorType;
 	}
 }

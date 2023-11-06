@@ -25,34 +25,34 @@ public final class ChatTranslatorHack extends Hack implements ChatInputListener
 {
 	private static final GoogleTranslate googleTranslate =
 		new GoogleTranslate();
-	
+
 	private final EnumSetting<FromLanguage> langFrom = new EnumSetting<>(
 		"Translate from", FromLanguage.values(), FromLanguage.AUTO_DETECT);
-	
+
 	private final EnumSetting<ToLanguage> langTo = new EnumSetting<>(
 		"Translate to", ToLanguage.values(), ToLanguage.ENGLISH);
-	
+
 	public ChatTranslatorHack()
 	{
-		super("ChatTranslator");
+		super("ChatTranslator", "翻译聊天");
 		setCategory(Category.CHAT);
-		
+
 		addSetting(langFrom);
 		addSetting(langTo);
 	}
-	
+
 	@Override
 	public void onEnable()
 	{
 		EVENTS.add(ChatInputListener.class, this);
 	}
-	
+
 	@Override
 	public void onDisable()
 	{
 		EVENTS.remove(ChatInputListener.class, this);
 	}
-	
+
 	@Override
 	public void onReceivedMessage(ChatInputEvent event)
 	{
@@ -60,37 +60,37 @@ public final class ChatTranslatorHack extends Hack implements ChatInputListener
 			try
 			{
 				translate(event);
-				
+
 			}catch(Exception e)
 			{
 				e.printStackTrace();
 			}
 		}, "ChatTranslator").start();
 	}
-	
+
 	private void translate(ChatInputEvent event)
 	{
 		String incomingMsg = event.getComponent().getString();
-		
+
 		String translatorPrefix =
 			"\u00a7a[\u00a7b" + langTo.getSelected().name + "\u00a7a]:\u00a7r ";
-		
+
 		if(incomingMsg.startsWith(ChatUtils.WURST_PREFIX)
 			|| incomingMsg.startsWith(translatorPrefix))
 			return;
-		
+
 		String translated = googleTranslate.translate(incomingMsg,
 			langFrom.getSelected().value, langTo.getSelected().value);
-		
+
 		if(translated == null)
 			return;
-		
+
 		Text translationMsg =
 			Text.literal(translatorPrefix).append(Text.literal(translated));
-		
+
 		MC.inGameHud.getChatHud().addMessage(translationMsg);
 	}
-	
+
 	public static enum FromLanguage
 	{
 		AUTO_DETECT("Detect Language", "auto"),
@@ -118,23 +118,23 @@ public final class ChatTranslatorHack extends Hack implements ChatInputListener
 		SWAHILI("Swahili", "sw"),
 		SWEDISH("Swedish", "sv"),
 		TURKISH("Turkish", "tr");
-		
+
 		private final String name;
 		private final String value;
-		
+
 		private FromLanguage(String name, String value)
 		{
 			this.name = name;
 			this.value = value;
 		}
-		
+
 		@Override
 		public String toString()
 		{
 			return name;
 		}
 	}
-	
+
 	public static enum ToLanguage
 	{
 		AFRIKAANS("Afrikaans", "af"),
@@ -161,16 +161,16 @@ public final class ChatTranslatorHack extends Hack implements ChatInputListener
 		SWAHILI("Swahili", "sw"),
 		SWEDISH("Swedish", "sv"),
 		TURKISH("Turkish", "tr");
-		
+
 		private final String name;
 		private final String value;
-		
+
 		private ToLanguage(String name, String value)
 		{
 			this.name = name;
 			this.value = value;
 		}
-		
+
 		@Override
 		public String toString()
 		{

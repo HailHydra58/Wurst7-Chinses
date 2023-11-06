@@ -16,9 +16,9 @@ public final class CameraNoClipHack extends Hack
 {
 	public CameraNoClipHack()
 	{
-		super("CameraNoClip");
+		super("CameraNoClip", "墙体不挡视角");
 		setCategory(Category.RENDER);
 	}
-	
+
 	// See CameraMixin.onClipToSpace()
 }

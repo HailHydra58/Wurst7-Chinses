@@ -31,35 +31,35 @@ public final class AutoDropHack extends Hack implements UpdateListener
 		"minecraft:poisonous_potato", "minecraft:poppy", "minecraft:red_tulip",
 		"minecraft:rose_bush", "minecraft:rotten_flesh", "minecraft:sunflower",
 		"minecraft:wheat_seeds", "minecraft:white_tulip");
-	
+
 	private final String renderName =
 		Math.random() < 0.01 ? "AutoLinus" : getName();
-	
+
 	public AutoDropHack()
 	{
-		super("AutoDrop");
+		super("AutoDrop", "自动丢弃");
 		setCategory(Category.ITEMS);
 		addSetting(items);
 	}
-	
+
 	@Override
 	public String getRenderName()
 	{
 		return renderName;
 	}
-	
+
 	@Override
 	public void onEnable()
 	{
 		EVENTS.add(UpdateListener.class, this);
 	}
-	
+
 	@Override
 	public void onDisable()
 	{
 		EVENTS.remove(UpdateListener.class, this);
 	}
-	
+
 	@Override
 	public void onUpdate()
 	{
@@ -67,23 +67,23 @@ public final class AutoDropHack extends Hack implements UpdateListener
 		if(MC.currentScreen instanceof HandledScreen
 			&& !(MC.currentScreen instanceof InventoryScreen))
 			return;
-		
+
 		for(int slot = 9; slot < 45; slot++)
 		{
 			int adjustedSlot = slot;
 			if(adjustedSlot >= 36)
 				adjustedSlot -= 36;
 			ItemStack stack = MC.player.getInventory().getStack(adjustedSlot);
-			
+
 			if(stack.isEmpty())
 				continue;
-			
+
 			Item item = stack.getItem();
 			String itemName = Registries.ITEM.getId(item).toString();
-			
+
 			if(!items.getItemNames().contains(itemName))
 				continue;
-			
+
 			IMC.getInteractionManager().windowClick_THROW(slot);
 		}
 	}

