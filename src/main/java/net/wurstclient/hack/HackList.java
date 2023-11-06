@@ -204,6 +204,7 @@ public final class HackList implements UpdateListener
 					continue;
 
 				Hack hack = (Hack)field.get(this);
+				// 必须用getKey，因为getKey是hack的名字，而getName是中文名字
 				hax.put(hack.getKey(), hack);
 			}
 
