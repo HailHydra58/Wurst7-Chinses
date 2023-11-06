@@ -23,7 +23,7 @@ import net.wurstclient.settings.ItemListSetting;
 public final class AutoDropHack extends Hack implements UpdateListener
 {
 	private ItemListSetting items = new ItemListSetting("Items",
-		"Unwanted items that will be dropped.", "minecraft:allium",
+		"将被丢弃的不需要的物品。", "minecraft:allium",
 		"minecraft:azure_bluet", "minecraft:blue_orchid",
 		"minecraft:cornflower", "minecraft:dandelion", "minecraft:lilac",
 		"minecraft:lily_of_the_valley", "minecraft:orange_tulip",
