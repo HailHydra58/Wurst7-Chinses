@@ -347,11 +347,11 @@ public final class AutoEatHack extends Hack implements UpdateListener
 
 	private enum TakeItemsFrom
 	{
-		HANDS("Hands", 0),
+		HANDS("手", 0),
 
-		HOTBAR("Hotbar", 9),
+		HOTBAR("物品栏", 9),
 
-		INVENTORY("Inventory", 36);
+		INVENTORY("背包", 36);
 
 		private final String name;
 		private final int maxInvSlot;
