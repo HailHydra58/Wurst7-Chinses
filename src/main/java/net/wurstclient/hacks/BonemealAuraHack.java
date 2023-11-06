@@ -40,7 +40,7 @@ public final class BonemealAuraHack extends Hack implements UpdateListener
 	private final SliderSetting range =
 		new SliderSetting("范围", 4.25, 1, 6, 0.05, ValueDisplay.DECIMAL);
 
-	private final EnumSetting<Mode> mode = new EnumSetting<>("Mode",
+	private final EnumSetting<Mode> mode = new EnumSetting<>("模式",
 		"\u00a7lFast\u00a7r mode can use bone meal on multiple blocks at once.\n"
 			+ "\u00a7lLegit\u00a7r mode can bypass NoCheat+.",
 		Mode.values(), Mode.FAST);

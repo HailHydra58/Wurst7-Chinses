@@ -25,7 +25,7 @@ public final class AutoLeaveHack extends Hack implements UpdateListener
 		"Leaves the server when your health reaches this value or falls below it.",
 		4, 0.5, 9.5, 0.5, ValueDisplay.DECIMAL.withSuffix(" hearts"));
 
-	public final EnumSetting<Mode> mode = new EnumSetting<>("Mode",
+	public final EnumSetting<Mode> mode = new EnumSetting<>("模式",
 		"\u00a7lQuit\u00a7r mode just quits the game normally.\n"
 			+ "Bypasses NoCheat+ but not CombatLog.\n\n"
 			+ "\u00a7lChars\u00a7r mode sends a special chat message that causes the server to kick you.\n"
