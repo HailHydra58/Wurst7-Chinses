@@ -180,90 +180,91 @@ public final class HackList implements UpdateListener
 	public final TrueSightHack trueSightHack = new TrueSightHack();
 	public final TunnellerHack tunnellerHack = new TunnellerHack();
 	public final XRayHack xRayHack = new XRayHack();
-	
+
 	private final TreeMap<String, Hack> hax =
 		new TreeMap<>(String::compareToIgnoreCase);
-	
+
 	private final EnabledHacksFile enabledHacksFile;
 	private final Path profilesFolder =
 		WurstClient.INSTANCE.getWurstFolder().resolve("enabled hacks");
-	
+
 	private final EventManager eventManager =
 		WurstClient.INSTANCE.getEventManager();
-	
+
 	public HackList(Path enabledHacksFile)
 	{
 		this.enabledHacksFile = new EnabledHacksFile(enabledHacksFile);
-		
+
 		try
 		{
 			for(Field field : HackList.class.getDeclaredFields())
 			{
+				// 重点来了，这个地方是把所有的hack都加入到hax里面
 				if(!field.getName().endsWith("Hack"))
 					continue;
-				
+
 				Hack hack = (Hack)field.get(this);
-				hax.put(hack.getName(), hack);
+				hax.put(hack.getKey(), hack);
 			}
-			
+
 		}catch(Exception e)
 		{
 			String message = "Initializing Wurst hacks";
 			CrashReport report = CrashReport.create(e, message);
 			throw new CrashException(report);
 		}
-		
+
 		eventManager.add(UpdateListener.class, this);
 	}
-	
+
 	@Override
 	public void onUpdate()
 	{
 		enabledHacksFile.load(this);
 		eventManager.remove(UpdateListener.class, this);
 	}
-	
+
 	public void saveEnabledHax()
 	{
 		enabledHacksFile.save(this);
 	}
-	
+
 	public Hack getHackByName(String name)
 	{
 		return hax.get(name);
 	}
-	
+
 	public Collection<Hack> getAllHax()
 	{
 		return Collections.unmodifiableCollection(hax.values());
 	}
-	
+
 	public int countHax()
 	{
 		return hax.size();
 	}
-	
+
 	public ArrayList<Path> listProfiles()
 	{
 		if(!Files.isDirectory(profilesFolder))
 			return new ArrayList<>();
-		
+
 		try(Stream<Path> files = Files.list(profilesFolder))
 		{
 			return files.filter(Files::isRegularFile)
 				.collect(Collectors.toCollection(ArrayList::new));
-			
+
 		}catch(IOException e)
 		{
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	public void loadProfile(String fileName) throws IOException, JsonException
 	{
 		enabledHacksFile.loadProfile(this, profilesFolder.resolve(fileName));
 	}
-	
+
 	public void saveProfile(String fileName) throws IOException, JsonException
 	{
 		enabledHacksFile.saveProfile(this, profilesFolder.resolve(fileName));

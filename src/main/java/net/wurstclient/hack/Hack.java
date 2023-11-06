@@ -15,111 +15,107 @@ import net.wurstclient.hacks.ClickGuiHack;
 import net.wurstclient.hacks.NavigatorHack;
 import net.wurstclient.hacks.TooManyHaxHack;
 
-public abstract class Hack extends Feature
-{
-	private final String name;
-	private final String description;
-	private Category category;
+public abstract class Hack extends Feature {
+    private final String name;
+    private String chineseName;
+    private final String description;
+    private Category category;
 
-	private boolean enabled;
-	private final boolean stateSaved =
-		!getClass().isAnnotationPresent(DontSaveState.class);
+    private boolean enabled;
+    private final boolean stateSaved =
+            !getClass().isAnnotationPresent(DontSaveState.class);
 
-	public Hack(String name)
-	{
-		this.name = Objects.requireNonNull(name);
-		description = "description.wurst.hack." + name.toLowerCase();
-		addPossibleKeybind(name, "Toggle " + name);
-	}
+    public Hack(String name) {
+        this.name = Objects.requireNonNull(name);
+        description = "description.wurst.hack." + name.toLowerCase();
+        addPossibleKeybind(name, "Toggle " + name);
+    }
 
-	public Hack(String name,String chineseName)
-	{
-		this.name = Objects.requireNonNull(chineseName);
-		description = "description.wurst.hack." + name.toLowerCase();
-		addPossibleKeybind(name, "Toggle " + name);
-	}
+    public Hack(String name, String chineseName) {
+        this.name = Objects.requireNonNull(name);
+        this.chineseName = chineseName;
+        description = "description.wurst.hack." + name.toLowerCase();
+        addPossibleKeybind(name, "Toggle " + name);
+    }
 
-	@Override
-	public final String getName()
-	{
-		return name;
-	}
+    public final String getKey() {
+        return name;
+    }
 
-	public String getRenderName()
-	{
-		return name;
-	}
+    @Override
+    public final String getName() {
+        if (chineseName != null && !chineseName.isEmpty()) {
+            return chineseName;
+        } else {
+            return name;
+        }
+    }
 
-	@Override
-	public final String getDescription()
-	{
-		return WURST.translate(description);
-	}
+    // 显示在角落的name
+    public String getRenderName() {
+        return chineseName;
+    }
 
-	@Override
-	public final Category getCategory()
-	{
-		return category;
-	}
+    @Override
+    public final String getDescription() {
+        return WURST.translate(description);
+    }
 
-	protected final void setCategory(Category category)
-	{
-		this.category = category;
-	}
+    @Override
+    public final Category getCategory() {
+        return category;
+    }
 
-	@Override
-	public final boolean isEnabled()
-	{
-		return enabled;
-	}
+    protected final void setCategory(Category category) {
+        this.category = category;
+    }
 
-	public final void setEnabled(boolean enabled)
-	{
-		if(this.enabled == enabled)
-			return;
+    @Override
+    public final boolean isEnabled() {
+        return enabled;
+    }
 
-		TooManyHaxHack tooManyHax = WURST.getHax().tooManyHaxHack;
-		if(enabled && tooManyHax.isEnabled() && tooManyHax.isBlocked(this))
-			return;
+    public final void setEnabled(boolean enabled) {
+        if (this.enabled == enabled)
+            return;
 
-		this.enabled = enabled;
+        TooManyHaxHack tooManyHax = WURST.getHax().tooManyHaxHack;
+        if (enabled && tooManyHax.isEnabled() && tooManyHax.isBlocked(this))
+            return;
 
-		if(!(this instanceof NavigatorHack || this instanceof ClickGuiHack))
-			WURST.getHud().getHackList().updateState(this);
+        this.enabled = enabled;
 
-		if(enabled)
-			onEnable();
-		else
-			onDisable();
+        if (!(this instanceof NavigatorHack || this instanceof ClickGuiHack))
+            WURST.getHud().getHackList().updateState(this);
 
-		if(stateSaved)
-			WURST.getHax().saveEnabledHax();
-	}
+        if (enabled)
+            onEnable();
+        else
+            onDisable();
 
-	@Override
-	public final String getPrimaryAction()
-	{
-		return enabled ? "Disable" : "Enable";
-	}
+        if (stateSaved)
+            WURST.getHax().saveEnabledHax();
+    }
 
-	@Override
-	public final void doPrimaryAction()
-	{
-		setEnabled(!enabled);
-	}
+    @Override
+    public final String getPrimaryAction() {
+        return enabled ? "Disable" : "Enable";
+    }
 
-	public final boolean isStateSaved()
-	{
-		return stateSaved;
-	}
+    @Override
+    public final void doPrimaryAction() {
+        setEnabled(!enabled);
+    }
 
-	protected void onEnable()
-	{
+    public final boolean isStateSaved() {
+        return stateSaved;
+    }
 
-	}
+    protected void onEnable() {
 
-	protected void onDisable()
-	{
+    }
 
-	}
+    protected void onDisable() {
+
+    }
 }
