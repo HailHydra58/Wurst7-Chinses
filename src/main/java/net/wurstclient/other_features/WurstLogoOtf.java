@@ -20,61 +20,60 @@ import net.wurstclient.settings.EnumSetting;
 @DontBlock
 public final class WurstLogoOtf extends OtherFeature
 {
-	private final ColorSetting bgColor = new ColorSetting("Background",
-		"Background color.\n"
-			+ "Only visible when \u00a76RainbowUI\u00a7r is disabled.",
+	private final ColorSetting bgColor = new ColorSetting("背景",
+		"背景颜色。",
 		Color.WHITE);
-	
+
 	private final ColorSetting txtColor =
-		new ColorSetting("Text", "Text color.", Color.BLACK);
-	
+		new ColorSetting("字体", "字体颜色。", Color.BLACK);
+
 	private final EnumSetting<Visibility> visibility =
-		new EnumSetting<>("Visibility", Visibility.values(), Visibility.ALWAYS);
-	
+		new EnumSetting<>("可见性", Visibility.values(), Visibility.ALWAYS);
+
 	public WurstLogoOtf()
 	{
-		super("WurstLogo", "Shows the Wurst logo and version on the screen.");
+		super("Logo", "在屏幕上显示 Wurst logo和版本。");
 		addSetting(bgColor);
 		addSetting(txtColor);
 		addSetting(visibility);
 	}
-	
+
 	public boolean isVisible()
 	{
 		return visibility.getSelected().isVisible();
 	}
-	
+
 	public float[] getBackgroundColor()
 	{
 		return bgColor.getColorF();
 	}
-	
+
 	public int getTextColor()
 	{
 		return txtColor.getColorI();
 	}
-	
+
 	public static enum Visibility
 	{
-		ALWAYS("Always", () -> true),
-		
-		ONLY_OUTDATED("Only when outdated",
+		ALWAYS("显示", () -> true),
+
+		ONLY_OUTDATED("隐藏",
 			() -> WURST.getUpdater().isOutdated());
-		
+
 		private final String name;
 		private final BooleanSupplier visible;
-		
+
 		private Visibility(String name, BooleanSupplier visible)
 		{
 			this.name = name;
 			this.visible = visible;
 		}
-		
+
 		public boolean isVisible()
 		{
 			return visible.getAsBoolean();
 		}
-		
+
 		@Override
 		public String toString()
 		{
