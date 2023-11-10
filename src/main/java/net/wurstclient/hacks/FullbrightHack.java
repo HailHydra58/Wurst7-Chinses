@@ -20,171 +20,152 @@ import net.wurstclient.settings.SliderSetting;
 import net.wurstclient.settings.SliderSetting.ValueDisplay;
 
 @SearchTags({"Fullbrightness", "full brightness", "Fulbrightness",
-	"ful brightness", "NightVision", "night vision", "FullLightness",
-	"FulLightness", "full lightness", "FullGamma", "full gamma"})
-public final class FullbrightHack extends Hack implements UpdateListener
-{
-	private final EnumSetting<Method> method = new EnumSetting<>("Method",
-		"\u00a7lGamma\u00a7r works by setting your brightness slider beyond 100%. Incompatible with shader packs.\n\n"
-			+ "\u00a7lNight Vision\u00a7r works by applying the night vision effect. This \u00a7ousually\u00a7r works with shader packs.",
-		Method.values(), Method.GAMMA);
+        "ful brightness", "NightVision", "night vision", "FullLightness",
+        "FulLightness", "full lightness", "FullGamma", "full gamma"})
+public final class FullbrightHack extends Hack implements UpdateListener {
+    private final EnumSetting<Method> method = new EnumSetting<>("方法",
+            "\u00a7l亮度\u00a7r通过将亮度滑块设置超过100%来工作。与着色器包不兼容。\n\n"
+                    + "\u00a7l夜视\u00a7r通过应用夜视效果来工作。这\u00a7通常\u00a7r与着色器包一起工作。",
+            Method.values(), Method.GAMMA);
 
-	private final CheckboxSetting fade = new CheckboxSetting("Fade",
-		"Slowly fades between brightness and darkness.", true);
+    private final CheckboxSetting fade = new CheckboxSetting("淡入",
+            "在亮度和黑暗之间慢慢淡入。", true);
 
-	private final SliderSetting defaultGamma = new SliderSetting(
-		"Default brightness",
-		"Fullbright will set your brightness slider back to this value when you turn it off.",
-		0.5, 0, 1, 0.01, ValueDisplay.PERCENTAGE);
+    private final SliderSetting defaultGamma = new SliderSetting(
+            "默认亮度",
+            "当你关闭它时，全亮将把你的亮度滑块设置回这个值。",
+            0.5, 0, 1, 0.01, ValueDisplay.PERCENTAGE);
 
-	private boolean wasGammaChanged;
-	private float nightVisionStrength;
+    private boolean wasGammaChanged;
+    private float nightVisionStrength;
 
-	public FullbrightHack()
-	{
-		super("Fullbright", "夜视");
-		setCategory(Category.RENDER);
-		addSetting(method);
-		addSetting(fade);
-		addSetting(defaultGamma);
+    public FullbrightHack() {
+        super("Fullbright", "夜视");
+        setCategory(Category.RENDER);
+        addSetting(method);
+        addSetting(fade);
+        addSetting(defaultGamma);
 
-		checkGammaOnStartup();
-		EVENTS.add(UpdateListener.class, this);
-	}
+        checkGammaOnStartup();
+        EVENTS.add(UpdateListener.class, this);
+    }
 
-	private void checkGammaOnStartup()
-	{
-		EVENTS.add(UpdateListener.class, new UpdateListener()
-		{
-			@Override
-			public void onUpdate()
-			{
-				double gamma = MC.options.getGamma().getValue();
-				System.out.println("Brightness started at " + gamma);
+    private void checkGammaOnStartup() {
+        EVENTS.add(UpdateListener.class, new UpdateListener() {
+            @Override
+            public void onUpdate() {
+                double gamma = MC.options.getGamma().getValue();
+                System.out.println("Brightness started at " + gamma);
 
-				if(gamma > 1)
-					wasGammaChanged = true;
-				else
-					defaultGamma.setValue(gamma);
+                if (gamma > 1)
+                    wasGammaChanged = true;
+                else
+                    defaultGamma.setValue(gamma);
 
-				EVENTS.remove(UpdateListener.class, this);
-			}
-		});
-	}
+                EVENTS.remove(UpdateListener.class, this);
+            }
+        });
+    }
 
-	@Override
-	public void onUpdate()
-	{
-		updateGamma();
-		updateNightVision();
-	}
+    @Override
+    public void onUpdate() {
+        updateGamma();
+        updateNightVision();
+    }
 
-	private void updateGamma()
-	{
-		boolean shouldChangeGamma =
-			isEnabled() && method.getSelected() == Method.GAMMA;
+    private void updateGamma() {
+        boolean shouldChangeGamma =
+                isEnabled() && method.getSelected() == Method.GAMMA;
 
-		if(shouldChangeGamma)
-		{
-			setGamma(16);
-			return;
-		}
+        if (shouldChangeGamma) {
+            setGamma(16);
+            return;
+        }
 
-		if(wasGammaChanged)
-			resetGamma(defaultGamma.getValue());
-	}
+        if (wasGammaChanged)
+            resetGamma(defaultGamma.getValue());
+    }
 
-	private void setGamma(double target)
-	{
-		wasGammaChanged = true;
+    private void setGamma(double target) {
+        wasGammaChanged = true;
 
-		SimpleOption<Double> gammaOption = MC.options.getGamma();
-		@SuppressWarnings("unchecked")
-		ISimpleOption<Double> gammaOption2 =
-			(ISimpleOption<Double>)(Object)gammaOption;
-		double oldGammaValue = gammaOption.getValue();
+        SimpleOption<Double> gammaOption = MC.options.getGamma();
+        @SuppressWarnings("unchecked")
+        ISimpleOption<Double> gammaOption2 =
+                (ISimpleOption<Double>) (Object) gammaOption;
+        double oldGammaValue = gammaOption.getValue();
 
-		if(!fade.isChecked() || Math.abs(oldGammaValue - target) <= 0.5)
-		{
-			gammaOption2.forceSetValue(target);
-			return;
-		}
+        if (!fade.isChecked() || Math.abs(oldGammaValue - target) <= 0.5) {
+            gammaOption2.forceSetValue(target);
+            return;
+        }
 
-		if(oldGammaValue < target)
-			gammaOption2.forceSetValue(oldGammaValue + 0.5);
-		else
-			gammaOption2.forceSetValue(oldGammaValue - 0.5);
-	}
+        if (oldGammaValue < target)
+            gammaOption2.forceSetValue(oldGammaValue + 0.5);
+        else
+            gammaOption2.forceSetValue(oldGammaValue - 0.5);
+    }
 
-	private void resetGamma(double target)
-	{
-		SimpleOption<Double> gammaOption = MC.options.getGamma();
-		@SuppressWarnings("unchecked")
-		ISimpleOption<Double> gammaOption2 =
-			(ISimpleOption<Double>)(Object)gammaOption;
-		double oldGammaValue = gammaOption.getValue();
+    private void resetGamma(double target) {
+        SimpleOption<Double> gammaOption = MC.options.getGamma();
+        @SuppressWarnings("unchecked")
+        ISimpleOption<Double> gammaOption2 =
+                (ISimpleOption<Double>) (Object) gammaOption;
+        double oldGammaValue = gammaOption.getValue();
 
-		if(!fade.isChecked() || Math.abs(oldGammaValue - target) <= 0.5)
-		{
-			gammaOption2.forceSetValue(target);
-			wasGammaChanged = false;
-			return;
-		}
+        if (!fade.isChecked() || Math.abs(oldGammaValue - target) <= 0.5) {
+            gammaOption2.forceSetValue(target);
+            wasGammaChanged = false;
+            return;
+        }
 
-		if(oldGammaValue < target)
-			gammaOption2.forceSetValue(oldGammaValue + 0.5);
-		else
-			gammaOption2.forceSetValue(oldGammaValue - 0.5);
-	}
+        if (oldGammaValue < target)
+            gammaOption2.forceSetValue(oldGammaValue + 0.5);
+        else
+            gammaOption2.forceSetValue(oldGammaValue - 0.5);
+    }
 
-	private void updateNightVision()
-	{
-		boolean shouldGiveNightVision =
-			isEnabled() && method.getSelected() == Method.NIGHT_VISION;
+    private void updateNightVision() {
+        boolean shouldGiveNightVision =
+                isEnabled() && method.getSelected() == Method.NIGHT_VISION;
 
-		if(fade.isChecked())
-		{
-			if(shouldGiveNightVision)
-				nightVisionStrength += 0.03125;
-			else
-				nightVisionStrength -= 0.03125;
+        if (fade.isChecked()) {
+            if (shouldGiveNightVision)
+                nightVisionStrength += 0.03125;
+            else
+                nightVisionStrength -= 0.03125;
 
-			nightVisionStrength = MathHelper.clamp(nightVisionStrength, 0, 1);
+            nightVisionStrength = MathHelper.clamp(nightVisionStrength, 0, 1);
 
-		}else if(shouldGiveNightVision)
-			nightVisionStrength = 1;
-		else
-			nightVisionStrength = 0;
-	}
+        } else if (shouldGiveNightVision)
+            nightVisionStrength = 1;
+        else
+            nightVisionStrength = 0;
+    }
 
-	public boolean isNightVisionActive()
-	{
-		return nightVisionStrength > 0;
-	}
+    public boolean isNightVisionActive() {
+        return nightVisionStrength > 0;
+    }
 
-	public float getNightVisionStrength()
-	{
-		return nightVisionStrength;
-	}
+    public float getNightVisionStrength() {
+        return nightVisionStrength;
+    }
 
-	private static enum Method
-	{
-		GAMMA("Gamma"),
-		NIGHT_VISION("Night Vision");
+    private static enum Method {
+        GAMMA("亮度"),
+        NIGHT_VISION("夜视");
 
-		private final String name;
+        private final String name;
 
-		private Method(String name)
-		{
-			this.name = name;
-		}
+        private Method(String name) {
+            this.name = name;
+        }
 
-		@Override
-		public String toString()
-		{
-			return name;
-		}
-	}
+        @Override
+        public String toString() {
+            return name;
+        }
+    }
 
-	// See ClientPlayerEntityMixin.hasStatusEffect()
+    // See ClientPlayerEntityMixin.hasStatusEffect()
 }
