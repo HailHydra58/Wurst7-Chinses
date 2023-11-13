@@ -27,217 +27,196 @@ import net.wurstclient.util.BlockUtils;
 
 @SearchTags({"auto tool", "AutoSwitch", "auto switch"})
 public final class AutoToolHack extends Hack
-	implements BlockBreakingProgressListener, UpdateListener
-{
-	private final CheckboxSetting useSwords = new CheckboxSetting("Use swords",
-		"Uses swords to break leaves, cobwebs, etc.", false);
+        implements BlockBreakingProgressListener, UpdateListener {
+    private final CheckboxSetting useSwords = new CheckboxSetting("使用剑",
+            "使用剑来破坏树叶、蜘蛛网等。", false);
 
-	private final CheckboxSetting useHands = new CheckboxSetting("Use hands",
-		"Uses an empty hand or a non-damageable item when no applicable tool is found.",
-		true);
+    private final CheckboxSetting useHands = new CheckboxSetting("使用手",
+            "当没有适用的工具时，使用空手或不可损坏的物品。",
+            true);
 
-	private final SliderSetting repairMode = new SliderSetting("Repair mode",
-		"Prevents tools from being used when their durability reaches the given threshold, so you can repair them before they break.\n"
-			+ "Can be adjusted from 0 (off) to 100.",
-		0, 0, 100, 1, ValueDisplay.INTEGER.withLabel(0, "off"));
+    private final SliderSetting repairMode = new SliderSetting("修复模式",
+            "当工具的耐久度达到给定阈值时，防止使用工具，以便您在它们损坏之前修复它们。\n"
+                    + "可以从0（关闭）到100进行调整。",
+            0, 0, 100, 1, ValueDisplay.INTEGER.withLabel(0, "关闭"));
 
-	private final CheckboxSetting switchBack = new CheckboxSetting(
-		"Switch back",
-		"After using a tool, automatically switches back to the previously selected slot.",
-		true);
+    private final CheckboxSetting switchBack = new CheckboxSetting(
+            "切换回原来的物品",
+            "在使用工具后，自动切换回先前选择的物品槽。",
+            true);
 
-	private int prevSelectedSlot;
+    private int prevSelectedSlot;
 
-	public AutoToolHack()
-	{
-		super("AutoTool", "工具择优");
+    public AutoToolHack() {
+        super("AutoTool", "工具择优");
 
-		setCategory(Category.BLOCKS);
-		addSetting(useSwords);
-		addSetting(useHands);
-		addSetting(repairMode);
-		addSetting(switchBack);
-	}
+        setCategory(Category.BLOCKS);
+        addSetting(useSwords);
+        addSetting(useHands);
+        addSetting(repairMode);
+        addSetting(switchBack);
+    }
 
-	@Override
-	public void onEnable()
-	{
-		EVENTS.add(BlockBreakingProgressListener.class, this);
-		EVENTS.add(UpdateListener.class, this);
-		prevSelectedSlot = -1;
-	}
+    @Override
+    public void onEnable() {
+        EVENTS.add(BlockBreakingProgressListener.class, this);
+        EVENTS.add(UpdateListener.class, this);
+        prevSelectedSlot = -1;
+    }
 
-	@Override
-	public void onDisable()
-	{
-		EVENTS.remove(BlockBreakingProgressListener.class, this);
-		EVENTS.remove(UpdateListener.class, this);
-	}
+    @Override
+    public void onDisable() {
+        EVENTS.remove(BlockBreakingProgressListener.class, this);
+        EVENTS.remove(UpdateListener.class, this);
+    }
 
-	@Override
-	public void onBlockBreakingProgress(BlockBreakingProgressEvent event)
-	{
-		BlockPos pos = event.getBlockPos();
-		if(!BlockUtils.canBeClicked(pos))
-			return;
+    @Override
+    public void onBlockBreakingProgress(BlockBreakingProgressEvent event) {
+        BlockPos pos = event.getBlockPos();
+        if (!BlockUtils.canBeClicked(pos))
+            return;
 
-		if(prevSelectedSlot == -1)
-			prevSelectedSlot = MC.player.getInventory().selectedSlot;
+        if (prevSelectedSlot == -1)
+            prevSelectedSlot = MC.player.getInventory().selectedSlot;
 
-		equipBestTool(pos, useSwords.isChecked(), useHands.isChecked(),
-			repairMode.getValueI());
-	}
+        equipBestTool(pos, useSwords.isChecked(), useHands.isChecked(),
+                repairMode.getValueI());
+    }
 
-	@Override
-	public void onUpdate()
-	{
-		if(prevSelectedSlot == -1 || MC.interactionManager.isBreakingBlock())
-			return;
+    @Override
+    public void onUpdate() {
+        if (prevSelectedSlot == -1 || MC.interactionManager.isBreakingBlock())
+            return;
 
-		if(switchBack.isChecked())
-			MC.player.getInventory().selectedSlot = prevSelectedSlot;
+        if (switchBack.isChecked())
+            MC.player.getInventory().selectedSlot = prevSelectedSlot;
 
-		prevSelectedSlot = -1;
-	}
+        prevSelectedSlot = -1;
+    }
 
-	public void equipIfEnabled(BlockPos pos)
-	{
-		if(!isEnabled())
-			return;
+    public void equipIfEnabled(BlockPos pos) {
+        if (!isEnabled())
+            return;
 
-		equipBestTool(pos, useSwords.isChecked(), useHands.isChecked(),
-			repairMode.getValueI());
-	}
+        equipBestTool(pos, useSwords.isChecked(), useHands.isChecked(),
+                repairMode.getValueI());
+    }
 
-	public void equipBestTool(BlockPos pos, boolean useSwords, boolean useHands,
-		int repairMode)
-	{
-		ClientPlayerEntity player = MC.player;
-		if(player.getAbilities().creativeMode)
-			return;
+    public void equipBestTool(BlockPos pos, boolean useSwords, boolean useHands,
+                              int repairMode) {
+        ClientPlayerEntity player = MC.player;
+        if (player.getAbilities().creativeMode)
+            return;
 
-		int bestSlot = getBestSlot(pos, useSwords, repairMode);
-		if(bestSlot == -1)
-		{
-			ItemStack heldItem = player.getMainHandStack();
-			if(!isDamageable(heldItem))
-				return;
+        int bestSlot = getBestSlot(pos, useSwords, repairMode);
+        if (bestSlot == -1) {
+            ItemStack heldItem = player.getMainHandStack();
+            if (!isDamageable(heldItem))
+                return;
 
-			if(isTooDamaged(heldItem, repairMode))
-			{
-				selectFallbackSlot();
-				return;
-			}
+            if (isTooDamaged(heldItem, repairMode)) {
+                selectFallbackSlot();
+                return;
+            }
 
-			if(useHands && isWrongTool(heldItem, pos))
-				selectFallbackSlot();
+            if (useHands && isWrongTool(heldItem, pos))
+                selectFallbackSlot();
 
-			return;
-		}
+            return;
+        }
 
-		player.getInventory().selectedSlot = bestSlot;
-	}
+        player.getInventory().selectedSlot = bestSlot;
+    }
 
-	private int getBestSlot(BlockPos pos, boolean useSwords, int repairMode)
-	{
-		ClientPlayerEntity player = MC.player;
-		PlayerInventory inventory = player.getInventory();
-		ItemStack heldItem = MC.player.getMainHandStack();
+    private int getBestSlot(BlockPos pos, boolean useSwords, int repairMode) {
+        ClientPlayerEntity player = MC.player;
+        PlayerInventory inventory = player.getInventory();
+        ItemStack heldItem = MC.player.getMainHandStack();
 
-		BlockState state = BlockUtils.getState(pos);
-		float bestSpeed = getMiningSpeed(heldItem, state);
-		if(isTooDamaged(heldItem, repairMode))
-			bestSpeed = 1;
-		int bestSlot = -1;
+        BlockState state = BlockUtils.getState(pos);
+        float bestSpeed = getMiningSpeed(heldItem, state);
+        if (isTooDamaged(heldItem, repairMode))
+            bestSpeed = 1;
+        int bestSlot = -1;
 
-		for(int slot = 0; slot < 9; slot++)
-		{
-			if(slot == inventory.selectedSlot)
-				continue;
+        for (int slot = 0; slot < 9; slot++) {
+            if (slot == inventory.selectedSlot)
+                continue;
 
-			ItemStack stack = inventory.getStack(slot);
+            ItemStack stack = inventory.getStack(slot);
 
-			float speed = getMiningSpeed(stack, state);
-			if(speed <= bestSpeed)
-				continue;
+            float speed = getMiningSpeed(stack, state);
+            if (speed <= bestSpeed)
+                continue;
 
-			if(!useSwords && stack.getItem() instanceof SwordItem)
-				continue;
+            if (!useSwords && stack.getItem() instanceof SwordItem)
+                continue;
 
-			if(isTooDamaged(stack, repairMode))
-				continue;
+            if (isTooDamaged(stack, repairMode))
+                continue;
 
-			bestSpeed = speed;
-			bestSlot = slot;
-		}
+            bestSpeed = speed;
+            bestSlot = slot;
+        }
 
-		return bestSlot;
-	}
+        return bestSlot;
+    }
 
-	private float getMiningSpeed(ItemStack stack, BlockState state)
-	{
-		float speed = stack.getMiningSpeedMultiplier(state);
+    private float getMiningSpeed(ItemStack stack, BlockState state) {
+        float speed = stack.getMiningSpeedMultiplier(state);
 
-		if(speed > 1)
-		{
-			int efficiency =
-				EnchantmentHelper.getLevel(Enchantments.EFFICIENCY, stack);
-			if(efficiency > 0 && !stack.isEmpty())
-				speed += efficiency * efficiency + 1;
-		}
+        if (speed > 1) {
+            int efficiency =
+                    EnchantmentHelper.getLevel(Enchantments.EFFICIENCY, stack);
+            if (efficiency > 0 && !stack.isEmpty())
+                speed += efficiency * efficiency + 1;
+        }
 
-		return speed;
-	}
+        return speed;
+    }
 
-	private boolean isDamageable(ItemStack stack)
-	{
-		return !stack.isEmpty() && stack.getItem().isDamageable();
-	}
+    private boolean isDamageable(ItemStack stack) {
+        return !stack.isEmpty() && stack.getItem().isDamageable();
+    }
 
-	private boolean isTooDamaged(ItemStack stack, int repairMode)
-	{
-		return stack.getMaxDamage() - stack.getDamage() <= repairMode;
-	}
+    private boolean isTooDamaged(ItemStack stack, int repairMode) {
+        return stack.getMaxDamage() - stack.getDamage() <= repairMode;
+    }
 
-	private boolean isWrongTool(ItemStack heldItem, BlockPos pos)
-	{
-		BlockState state = BlockUtils.getState(pos);
-		return getMiningSpeed(heldItem, state) <= 1;
-	}
+    private boolean isWrongTool(ItemStack heldItem, BlockPos pos) {
+        BlockState state = BlockUtils.getState(pos);
+        return getMiningSpeed(heldItem, state) <= 1;
+    }
 
-	private void selectFallbackSlot()
-	{
-		int fallbackSlot = getFallbackSlot();
-		PlayerInventory inventory = MC.player.getInventory();
+    private void selectFallbackSlot() {
+        int fallbackSlot = getFallbackSlot();
+        PlayerInventory inventory = MC.player.getInventory();
 
-		if(fallbackSlot == -1)
-		{
-			if(inventory.selectedSlot == 8)
-				inventory.selectedSlot = 0;
-			else
-				inventory.selectedSlot++;
+        if (fallbackSlot == -1) {
+            if (inventory.selectedSlot == 8)
+                inventory.selectedSlot = 0;
+            else
+                inventory.selectedSlot++;
 
-			return;
-		}
+            return;
+        }
 
-		inventory.selectedSlot = fallbackSlot;
-	}
+        inventory.selectedSlot = fallbackSlot;
+    }
 
-	private int getFallbackSlot()
-	{
-		PlayerInventory inventory = MC.player.getInventory();
+    private int getFallbackSlot() {
+        PlayerInventory inventory = MC.player.getInventory();
 
-		for(int slot = 0; slot < 9; slot++)
-		{
-			if(slot == inventory.selectedSlot)
-				continue;
+        for (int slot = 0; slot < 9; slot++) {
+            if (slot == inventory.selectedSlot)
+                continue;
 
-			ItemStack stack = inventory.getStack(slot);
+            ItemStack stack = inventory.getStack(slot);
 
-			if(!isDamageable(stack))
-				return slot;
-		}
+            if (!isDamageable(stack))
+                return slot;
+        }
 
-		return -1;
-	}
+        return -1;
+    }
 }

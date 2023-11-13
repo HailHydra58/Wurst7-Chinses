@@ -26,172 +26,154 @@ import net.wurstclient.settings.SliderSetting;
 import net.wurstclient.settings.SliderSetting.ValueDisplay;
 
 @SearchTags({"auto sword"})
-public final class AutoSwordHack extends Hack implements UpdateListener
-{
-	private final EnumSetting<Priority> priority =
-		new EnumSetting<>("Priority", Priority.values(), Priority.SPEED);
+public final class AutoSwordHack extends Hack implements UpdateListener {
+    private final EnumSetting<Priority> priority =
+            new EnumSetting<>("优先级", Priority.values(), Priority.SPEED);
 
-	private final CheckboxSetting switchBack = new CheckboxSetting(
-		"Switch back",
-		"Switches back to the previously selected slot after \u00a7lRelease time\u00a7r has passed.",
-		true);
+    private final CheckboxSetting switchBack = new CheckboxSetting(
+            "切换回去",
+            "在\u00a7l释放时间\u00a7r过去后切换回之前选择的槽位。",
+            true);
 
-	private final SliderSetting releaseTime = new SliderSetting("Release time",
-		"Time until AutoSword will switch back from the weapon to the previously selected slot.\n\n"
-			+ "Only works when \u00a7lSwitch back\u00a7r is checked.",
-		10, 1, 200, 1, ValueDisplay.INTEGER.withSuffix(" ticks"));
+    private final SliderSetting releaseTime = new SliderSetting("释放时间",
+            "从武器切换回之前选择的槽位所需的时间。\n\n"
+                    + "仅在\u00a7l切换回去\u00a7r被选中时有效。",
+            10, 1, 200, 1, ValueDisplay.INTEGER.withSuffix(" ticks"));
 
-	private int oldSlot;
-	private int timer;
+    private int oldSlot;
+    private int timer;
 
-	public AutoSwordHack()
-	{
-		super("AutoSword", "武器择优");
+    public AutoSwordHack() {
+        super("AutoSword", "武器择优");
 
-		setCategory(Category.COMBAT);
+        setCategory(Category.COMBAT);
 
-		addSetting(priority);
-		addSetting(switchBack);
-		addSetting(releaseTime);
-	}
+        addSetting(priority);
+        addSetting(switchBack);
+        addSetting(releaseTime);
+    }
 
-	@Override
-	public void onEnable()
-	{
-		oldSlot = -1;
-		EVENTS.add(UpdateListener.class, this);
-	}
+    @Override
+    public void onEnable() {
+        oldSlot = -1;
+        EVENTS.add(UpdateListener.class, this);
+    }
 
-	@Override
-	public void onDisable()
-	{
-		EVENTS.remove(UpdateListener.class, this);
-		resetSlot();
-	}
+    @Override
+    public void onDisable() {
+        EVENTS.remove(UpdateListener.class, this);
+        resetSlot();
+    }
 
-	@Override
-	public void onUpdate()
-	{
-		if(MC.crosshairTarget != null
-			&& MC.crosshairTarget.getType() == HitResult.Type.ENTITY)
-		{
-			Entity entity = ((EntityHitResult)MC.crosshairTarget).getEntity();
+    @Override
+    public void onUpdate() {
+        if (MC.crosshairTarget != null
+                && MC.crosshairTarget.getType() == HitResult.Type.ENTITY) {
+            Entity entity = ((EntityHitResult) MC.crosshairTarget).getEntity();
 
-			if(entity instanceof LivingEntity
-				&& ((LivingEntity)entity).getHealth() > 0)
-				setSlot();
-		}
+            if (entity instanceof LivingEntity
+                    && ((LivingEntity) entity).getHealth() > 0)
+                setSlot();
+        }
 
-		// update timer
-		if(timer > 0)
-		{
-			timer--;
-			return;
-		}
+        // update timer
+        if (timer > 0) {
+            timer--;
+            return;
+        }
 
-		resetSlot();
-	}
+        resetSlot();
+    }
 
-	public void setSlot()
-	{
-		// check if active
-		if(!isEnabled())
-			return;
+    public void setSlot() {
+        // check if active
+        if (!isEnabled())
+            return;
 
-		// wait for AutoEat
-		if(WURST.getHax().autoEatHack.isEating())
-			return;
+        // wait for AutoEat
+        if (WURST.getHax().autoEatHack.isEating())
+            return;
 
-		// find best weapon
-		float bestValue = Integer.MIN_VALUE;
-		int bestSlot = -1;
-		for(int i = 0; i < 9; i++)
-		{
-			// skip empty slots
-			if(MC.player.getInventory().getStack(i).isEmpty())
-				continue;
+        // find best weapon
+        float bestValue = Integer.MIN_VALUE;
+        int bestSlot = -1;
+        for (int i = 0; i < 9; i++) {
+            // skip empty slots
+            if (MC.player.getInventory().getStack(i).isEmpty())
+                continue;
 
-			Item item = MC.player.getInventory().getStack(i).getItem();
+            Item item = MC.player.getInventory().getStack(i).getItem();
 
-			// get damage
-			float value = getValue(item);
+            // get damage
+            float value = getValue(item);
 
-			// compare with previous best weapon
-			if(value > bestValue)
-			{
-				bestValue = value;
-				bestSlot = i;
-			}
-		}
+            // compare with previous best weapon
+            if (value > bestValue) {
+                bestValue = value;
+                bestSlot = i;
+            }
+        }
 
-		// check if any weapon was found
-		if(bestSlot == -1)
-			return;
+        // check if any weapon was found
+        if (bestSlot == -1)
+            return;
 
-		// save old slot
-		if(oldSlot == -1)
-			oldSlot = MC.player.getInventory().selectedSlot;
+        // save old slot
+        if (oldSlot == -1)
+            oldSlot = MC.player.getInventory().selectedSlot;
 
-		// set slot
-		MC.player.getInventory().selectedSlot = bestSlot;
+        // set slot
+        MC.player.getInventory().selectedSlot = bestSlot;
 
-		// start timer
-		timer = releaseTime.getValueI();
-	}
+        // start timer
+        timer = releaseTime.getValueI();
+    }
 
-	private float getValue(Item item)
-	{
-		switch(priority.getSelected())
-		{
-			case SPEED:
-			if(item instanceof SwordItem)
-				return ((ISwordItem)item).fuckMcAfee();
-			if(item instanceof MiningToolItem)
-				return ((IMiningToolItem)item).fuckMcAfee2();
-			break;
+    private float getValue(Item item) {
+        switch (priority.getSelected()) {
+            case SPEED:
+                if (item instanceof SwordItem)
+                    return ((ISwordItem) item).fuckMcAfee();
+                if (item instanceof MiningToolItem)
+                    return ((IMiningToolItem) item).fuckMcAfee2();
+                break;
 
-			case DAMAGE:
-			if(item instanceof SwordItem)
-				return ((SwordItem)item).getAttackDamage();
-			if(item instanceof MiningToolItem)
-				return ((IMiningToolItem)item).fuckMcAfee1();
-			break;
-		}
+            case DAMAGE:
+                if (item instanceof SwordItem)
+                    return ((SwordItem) item).getAttackDamage();
+                if (item instanceof MiningToolItem)
+                    return ((IMiningToolItem) item).fuckMcAfee1();
+                break;
+        }
 
-		return Integer.MIN_VALUE;
-	}
+        return Integer.MIN_VALUE;
+    }
 
-	private void resetSlot()
-	{
-		if(!switchBack.isChecked())
-		{
-			oldSlot = -1;
-			return;
-		}
+    private void resetSlot() {
+        if (!switchBack.isChecked()) {
+            oldSlot = -1;
+            return;
+        }
 
-		if(oldSlot != -1)
-		{
-			MC.player.getInventory().selectedSlot = oldSlot;
-			oldSlot = -1;
-		}
-	}
+        if (oldSlot != -1) {
+            MC.player.getInventory().selectedSlot = oldSlot;
+            oldSlot = -1;
+        }
+    }
 
-	private enum Priority
-	{
-		SPEED("Speed (swords)"),
-		DAMAGE("Damage (axes)");
+    private enum Priority {
+        SPEED("Speed (swords)"),
+        DAMAGE("Damage (axes)");
 
-		private final String name;
+        private final String name;
 
-		private Priority(String name)
-		{
-			this.name = name;
-		}
+        private Priority(String name) {
+            this.name = name;
+        }
 
-		@Override
-		public String toString()
-		{
-			return name;
-		}
-	}
+        @Override
+        public String toString() {
+            return name;
+        }
+    }
 }

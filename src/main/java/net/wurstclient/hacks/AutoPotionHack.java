@@ -25,8 +25,8 @@ import net.wurstclient.settings.SliderSetting.ValueDisplay;
 	"auto splash potion"})
 public final class AutoPotionHack extends Hack implements UpdateListener
 {
-	private final SliderSetting health = new SliderSetting("Health",
-		"Throws a potion when your health reaches this value or falls below it.",
+	private final SliderSetting health = new SliderSetting("健康",
+		"当您的健康值达到或低于此值时，会扔出一瓶药水。",
 		6, 0.5, 9.5, 0.5, ValueDisplay.DECIMAL.withSuffix(" hearts"));
 
 	private int timer;

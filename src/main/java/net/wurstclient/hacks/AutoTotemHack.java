@@ -22,152 +22,138 @@ import net.wurstclient.settings.SliderSetting;
 import net.wurstclient.settings.SliderSetting.ValueDisplay;
 
 @SearchTags({"auto totem", "offhand", "off-hand"})
-public final class AutoTotemHack extends Hack implements UpdateListener
-{
-	private final CheckboxSetting showCounter = new CheckboxSetting(
-		"Show totem counter", "Displays the number of totems you have.", true);
+public final class AutoTotemHack extends Hack implements UpdateListener {
+    private final CheckboxSetting showCounter = new CheckboxSetting(
+            "显示图腾计数器", "显示您拥有的图腾数量。", true);
 
-	private final SliderSetting delay = new SliderSetting("Delay",
-		"Amount of ticks to wait before equipping the next totem.", 0, 0, 20, 1,
-		ValueDisplay.INTEGER);
+    private final SliderSetting delay = new SliderSetting("延迟",
+            "在装备下一个图腾之前等待的刻数。", 0, 0, 20, 1,
+            ValueDisplay.INTEGER);
 
-	private final SliderSetting health = new SliderSetting("Health",
-		"Effectively disables AutoTotem until your health reaches this value or falls below it.\n"
-			+ "0 = always active",
-		0, 0, 10, 0.5,
-		ValueDisplay.DECIMAL.withSuffix(" hearts").withLabel(0, "ignore"));
+    private final SliderSetting health = new SliderSetting("生命值",
+            "在您的生命值达到此值或低于此值之前，有效地禁用AutoTotem。\n"
+                    + "0 = 始终激活",
+            0, 0, 10, 0.5,
+            ValueDisplay.DECIMAL.withSuffix(" hearts").withLabel(0, "ignore"));
 
-	private int nextTickSlot;
-	private int totems;
-	private int timer;
-	private boolean wasTotemInOffhand;
 
-	public AutoTotemHack()
-	{
-		super("AutoTotem", "自动图腾");
-		setCategory(Category.COMBAT);
-		addSetting(showCounter);
-		addSetting(delay);
-		addSetting(health);
-	}
+    private int nextTickSlot;
+    private int totems;
+    private int timer;
+    private boolean wasTotemInOffhand;
 
-	@Override
-	public String getRenderName()
-	{
-		if(!showCounter.isChecked())
-			return getName();
+    public AutoTotemHack() {
+        super("AutoTotem", "自动图腾");
+        setCategory(Category.COMBAT);
+        addSetting(showCounter);
+        addSetting(delay);
+        addSetting(health);
+    }
 
-		switch(totems)
-		{
-			case 1:
-			return getName() + " [1 totem]";
+    @Override
+    public String getRenderName() {
+        if (!showCounter.isChecked())
+            return getName();
 
-			default:
-			return getName() + " [" + totems + " totems]";
-		}
-	}
+        switch (totems) {
+            case 1:
+                return getName() + " [1 totem]";
 
-	@Override
-	public void onEnable()
-	{
-		nextTickSlot = -1;
-		totems = 0;
-		timer = 0;
-		wasTotemInOffhand = false;
-		EVENTS.add(UpdateListener.class, this);
-	}
+            default:
+                return getName() + " [" + totems + " totems]";
+        }
+    }
 
-	@Override
-	public void onDisable()
-	{
-		EVENTS.remove(UpdateListener.class, this);
-	}
+    @Override
+    public void onEnable() {
+        nextTickSlot = -1;
+        totems = 0;
+        timer = 0;
+        wasTotemInOffhand = false;
+        EVENTS.add(UpdateListener.class, this);
+    }
 
-	@Override
-	public void onUpdate()
-	{
-		finishMovingTotem();
+    @Override
+    public void onDisable() {
+        EVENTS.remove(UpdateListener.class, this);
+    }
 
-		PlayerInventory inventory = MC.player.getInventory();
-		int nextTotemSlot = searchForTotems(inventory);
+    @Override
+    public void onUpdate() {
+        finishMovingTotem();
 
-		ItemStack offhandStack = inventory.getStack(40);
-		if(isTotem(offhandStack))
-		{
-			totems++;
-			wasTotemInOffhand = true;
-			return;
-		}
+        PlayerInventory inventory = MC.player.getInventory();
+        int nextTotemSlot = searchForTotems(inventory);
 
-		if(wasTotemInOffhand)
-		{
-			timer = delay.getValueI();
-			wasTotemInOffhand = false;
-		}
+        ItemStack offhandStack = inventory.getStack(40);
+        if (isTotem(offhandStack)) {
+            totems++;
+            wasTotemInOffhand = true;
+            return;
+        }
 
-		float healthF = health.getValueF();
-		if(healthF > 0 && MC.player.getHealth() > healthF * 2F)
-			return;
+        if (wasTotemInOffhand) {
+            timer = delay.getValueI();
+            wasTotemInOffhand = false;
+        }
 
-		if(MC.currentScreen instanceof HandledScreen
-			&& !(MC.currentScreen instanceof AbstractInventoryScreen))
-			return;
+        float healthF = health.getValueF();
+        if (healthF > 0 && MC.player.getHealth() > healthF * 2F)
+            return;
 
-		if(nextTotemSlot == -1)
-			return;
+        if (MC.currentScreen instanceof HandledScreen
+                && !(MC.currentScreen instanceof AbstractInventoryScreen))
+            return;
 
-		if(timer > 0)
-		{
-			timer--;
-			return;
-		}
+        if (nextTotemSlot == -1)
+            return;
 
-		moveTotem(nextTotemSlot, offhandStack);
-	}
+        if (timer > 0) {
+            timer--;
+            return;
+        }
 
-	private void moveTotem(int nextTotemSlot, ItemStack offhandStack)
-	{
-		boolean offhandEmpty = offhandStack.isEmpty();
+        moveTotem(nextTotemSlot, offhandStack);
+    }
 
-		IClientPlayerInteractionManager im = IMC.getInteractionManager();
-		im.windowClick_PICKUP(nextTotemSlot);
-		im.windowClick_PICKUP(45);
+    private void moveTotem(int nextTotemSlot, ItemStack offhandStack) {
+        boolean offhandEmpty = offhandStack.isEmpty();
 
-		if(!offhandEmpty)
-			nextTickSlot = nextTotemSlot;
-	}
+        IClientPlayerInteractionManager im = IMC.getInteractionManager();
+        im.windowClick_PICKUP(nextTotemSlot);
+        im.windowClick_PICKUP(45);
 
-	private void finishMovingTotem()
-	{
-		if(nextTickSlot == -1)
-			return;
+        if (!offhandEmpty)
+            nextTickSlot = nextTotemSlot;
+    }
 
-		IClientPlayerInteractionManager im = IMC.getInteractionManager();
-		im.windowClick_PICKUP(nextTickSlot);
-		nextTickSlot = -1;
-	}
+    private void finishMovingTotem() {
+        if (nextTickSlot == -1)
+            return;
 
-	private int searchForTotems(PlayerInventory inventory)
-	{
-		totems = 0;
-		int nextTotemSlot = -1;
+        IClientPlayerInteractionManager im = IMC.getInteractionManager();
+        im.windowClick_PICKUP(nextTickSlot);
+        nextTickSlot = -1;
+    }
 
-		for(int slot = 0; slot <= 36; slot++)
-		{
-			if(!isTotem(inventory.getStack(slot)))
-				continue;
+    private int searchForTotems(PlayerInventory inventory) {
+        totems = 0;
+        int nextTotemSlot = -1;
 
-			totems++;
+        for (int slot = 0; slot <= 36; slot++) {
+            if (!isTotem(inventory.getStack(slot)))
+                continue;
 
-			if(nextTotemSlot == -1)
-				nextTotemSlot = slot < 9 ? slot + 36 : slot;
-		}
+            totems++;
 
-		return nextTotemSlot;
-	}
+            if (nextTotemSlot == -1)
+                nextTotemSlot = slot < 9 ? slot + 36 : slot;
+        }
 
-	private boolean isTotem(ItemStack stack)
-	{
-		return stack.getItem() == Items.TOTEM_OF_UNDYING;
-	}
+        return nextTotemSlot;
+    }
+
+    private boolean isTotem(ItemStack stack) {
+        return stack.getItem() == Items.TOTEM_OF_UNDYING;
+    }
 }
